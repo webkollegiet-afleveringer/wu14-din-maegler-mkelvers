@@ -1,19 +1,19 @@
-import { useState } from "react"
-import { Link } from "@tanstack/react-router"
-import PaperPlane from "/svgs/paper-plane.svg"
-import Phone from "/svgs/phone.svg"
-import User from "/svgs/user.svg"
-import Logo from "/svgs/logo.svg"
-import Menu from "/svgs/menu.svg"
-import Close from "/svgs/close.svg"
+import { useState } from "react";
+import { Link } from "@tanstack/react-router";
+import PaperPlane from "/svgs/paper-plane.svg";
+import Phone from "/svgs/phone.svg";
+import User from "/svgs/user.svg";
+import Logo from "/svgs/logo.svg";
+import Menu from "/svgs/menu.svg";
+import Close from "/svgs/close.svg";
 
 export default function Header() {
-  const [menuOpen, setMenuOpen] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false);
 
   return (
     <>
-      <header className="bg-primary text-white text-sm px-4 sm:px-6 py-3">
-        <div className="flex items-center justify-between mx-auto max-w-4xl w-full">
+      <header className="bg-primary px-4 py-3 text-sm text-white sm:px-6">
+        <div className="mx-auto flex w-full max-w-4xl items-center justify-between">
           <div className="flex items-center gap-4 sm:gap-6">
             <a
               href="mailto:4000@dinmaegler.com"
@@ -41,21 +41,29 @@ export default function Header() {
       </header>
 
       <div>
-        <nav className="py-4 max-w-4xl mx-auto w-full px-6">
-          <div className="flex items-center justify-between w-full">
+        <nav className="mx-auto w-full max-w-4xl px-6 py-4">
+          <div className="flex w-full items-center justify-between">
             <Link to="/">
               <img src={Logo} alt="Din Mægler" className="w-50" />
             </Link>
 
-            <div className="hidden md:flex items-center gap-8">
-              <Link to="/" className="hover:underline">Boliger til salg</Link>
-              <Link to="/" className="hover:underline">Mæglere</Link>
-              <Link to="/" className="hover:underline">Mine favoritter</Link>
-              <Link to="/" className="hover:underline">Kontakt os</Link>
+            <div className="hidden items-center gap-8 md:flex">
+              <Link to="/" className="hover:underline">
+                Boliger til salg
+              </Link>
+              <Link to="/" className="hover:underline">
+                Mæglere
+              </Link>
+              <Link to="/" className="hover:underline">
+                Mine favoritter
+              </Link>
+              <Link to="/" className="hover:underline">
+                Kontakt os
+              </Link>
             </div>
 
             <button
-              className="md:hidden p-2"
+              className="p-2 md:hidden"
               onClick={() => setMenuOpen(!menuOpen)}
               aria-label="Toggle menu"
             >
@@ -65,16 +73,24 @@ export default function Header() {
         </nav>
 
         {menuOpen && (
-          <div className="md:hidden bg-white border-t border-foreground/20">
-            <div className="flex flex-col max-w-4xl mx-auto w-full px-6 py-2">
-              <Link to="/" className="hover:underline">Boliger til salg</Link>
-              <Link to="/" className="hover:underline">Mæglere</Link>
-              <Link to="/" className="hover:underline">Mine favoritter</Link>
-              <Link to="/" className="hover:underline">Kontakt os</Link>
+          <div className="border-foreground/20 border-t bg-white md:hidden">
+            <div className="mx-auto flex w-full max-w-4xl flex-col px-6 py-2">
+              <Link to="/" className="hover:underline">
+                Boliger til salg
+              </Link>
+              <Link to="/" className="hover:underline">
+                Mæglere
+              </Link>
+              <Link to="/" className="hover:underline">
+                Mine favoritter
+              </Link>
+              <Link to="/" className="hover:underline">
+                Kontakt os
+              </Link>
             </div>
           </div>
         )}
       </div>
     </>
-  )
+  );
 }
