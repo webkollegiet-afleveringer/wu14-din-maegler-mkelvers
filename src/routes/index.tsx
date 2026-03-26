@@ -9,7 +9,7 @@ function RouteComponent() {
     <main className="flex h-screen">
       <section className="w-full">
         <figure className="isolate relative grid *:[grid-area:1/1] bg-[#555555]">
-          <img src="/hero.jpg" loading="lazy" decoding="async" className="w-full h-full object-cover mix-blend-soft-light" />
+          <img src="/hero.webp" loading="lazy" decoding="async" className="w-full h-full object-cover mix-blend-soft-light" />
           <article className="relative flex flex-col items-center justify-center text-white gap-6 px-4 py-8">
             <h2 className="text-2xl md:text-4xl font-bold text-center">Søg efter din drømmebolig</h2>
             <div className="bg-white text-black p-4 md:p-6 w-full max-w-4xl">
