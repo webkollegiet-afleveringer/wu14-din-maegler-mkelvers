@@ -8,6 +8,7 @@ function RouteComponent() {
   return (
     <main className="flex h-screen">
       <section className="w-full">
+        {/* *:[grid-area:1/1] is so the image and article occupy the same space */}
         <figure className="relative isolate grid bg-[#555555] *:[grid-area:1/1]">
           <img
             src="/hero.webp"
