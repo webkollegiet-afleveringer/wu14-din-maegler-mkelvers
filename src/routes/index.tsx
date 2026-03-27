@@ -10,7 +10,7 @@ function RouteComponent() {
     <main className="flex h-screen flex-col">
       <section className="w-full">
         {/* *:[grid-area:1/1] is so the image and article occupy the same space */}
-        <figure className="isolate grid bg-[#555555] *:[grid-area:1/1]">
+        <figure className="isolate grid bg-[#444444] *:[grid-area:1/1]">
           <img
             src="/imgs/hero.webp"
             loading="lazy"
