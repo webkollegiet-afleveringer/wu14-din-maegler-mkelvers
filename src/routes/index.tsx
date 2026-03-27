@@ -1,3 +1,4 @@
+import AboutUs from "#/components/about-us";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/")({
@@ -6,12 +7,12 @@ export const Route = createFileRoute("/")({
 
 function RouteComponent() {
   return (
-    <main className="flex h-screen">
+    <main className="flex h-screen flex-col">
       <section className="w-full">
         {/* *:[grid-area:1/1] is so the image and article occupy the same space */}
-        <figure className="relative isolate grid bg-[#555555] *:[grid-area:1/1]">
+        <figure className="isolate grid bg-[#555555] *:[grid-area:1/1]">
           <img
-            src="/hero.webp"
+            src="/imgs/hero.webp"
             loading="lazy"
             decoding="async"
             className="h-full w-full object-cover mix-blend-soft-light"
@@ -44,6 +45,8 @@ function RouteComponent() {
           </article>
         </figure>
       </section>
+
+      <AboutUs />
     </main>
   );
 }
