@@ -1,11 +1,30 @@
 import AboutUs from "#/components/about-us";
+import { Bolig } from "#/components/bolig";
+import type { Property } from "#/lib/types";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/")({
   component: RouteComponent,
+  loader: async ({ context }) => {
+    const properties = await context.queryClient.ensureQueryData({
+      queryKey: ["properties"],
+      queryFn: async (): Promise<Property[]> => {
+        const res = await fetch(
+          "https://dinmaegler.onrender.com/homes?_limit=4",
+        );
+        if (!res.ok) {
+          throw new Error("Failed to fetch properties");
+        }
+        return res.json();
+      },
+    });
+    return { properties };
+  },
 });
 
 function RouteComponent() {
+  const { properties } = Route.useLoaderData();
+
   return (
     <main className="flex h-screen flex-col">
       <section className="w-full">
@@ -47,6 +66,32 @@ function RouteComponent() {
       </section>
 
       <AboutUs />
+
+      <section className="bg-[#F8F8FB]">
+        <div className="mx-auto max-w-7xl p-8 px-4 py-16">
+          <article className="mx-auto max-w-xl space-y-3 text-center p-12">
+            <h2 className="text-4xl font-semibold text-[#263048]">
+              Udvalgte Boliger
+            </h2>
+            <p className="text-foreground">
+              There are many variations of passages of Lorem Ipsum available but
+              the this in majority have suffered alteration in some
+            </p>
+          </article>
+
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+            {properties.map((property: Property) => (
+              <Bolig key={property.id} property={property} />
+            ))}
+          </div>
+
+          <div className="mt-12 flex justify-center">
+            <button className="bg-primary rounded-xs px-8 py-3 text-white hover:cursor-pointer">
+              Se alle boliger
+            </button>
+          </div>
+        </div>
+      </section>
     </main>
   );
 }
