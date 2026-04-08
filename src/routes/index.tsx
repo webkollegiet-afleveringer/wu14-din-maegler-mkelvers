@@ -149,6 +149,54 @@ function RouteComponent() {
           </div>
         </div>
       </section>
+
+      <section id="app-download" className="bg-[#162A41] pt-16">
+        <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-8 px-4 lg:grid-cols-2">
+          <article className="space-y-6 text-white">
+            <h2 className="text-4xl leading-tight font-bold">
+              Hold dig opdateret
+              <br />
+              på salgsprocessen
+            </h2>
+            <p className="max-w-xl text-base leading-relaxed">
+              Når du sælger din bolig hos Din Mægler, kommunikerer du nemt med
+              den ansvarlige mægler eller butik med vores app. Her kan du også
+              se statistik på interessen for din bolig i alle vores
+              salgskanaler.
+            </p>
+            <div className="flex flex-wrap gap-4">
+              <button className="text-primary flex items-center gap-3 rounded-xs border-2 border-white bg-white px-6 py-3">
+                <img
+                  src="/svgs/google-play.svg"
+                  alt="google play"
+                  className="size-6"
+                />
+                <span className="font-medium">Google Play</span>
+              </button>
+              <button className="flex items-center gap-3 rounded-xs border-2 border-white bg-transparent px-6 py-3 text-white">
+                <img
+                  src="/svgs/apple-store.svg"
+                  alt="apple store"
+                  className="size-6"
+                />
+                <span className="font-medium">Apple Store</span>
+              </button>
+            </div>
+          </article>
+          <figure className="relative flex h-96 items-center justify-end">
+            <img
+              src="/imgs/app-phone-2.png"
+              alt="Din Mægler app property details"
+              className="anchor/phone2 h-full w-auto object-contain"
+            />
+            <img
+              src="/imgs/app-phone-1.png"
+              alt="Din Mægler app browse screen"
+              className="anchored/phone2 -right-anchor-left-20 top-anchor-top-0 h-full w-auto object-contain"
+            />
+          </figure>
+        </div>
+      </section>
     </main>
   );
 }
