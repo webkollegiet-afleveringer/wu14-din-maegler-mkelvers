@@ -69,7 +69,7 @@ function RouteComponent() {
 
       <section className="bg-[#F8F8FB]">
         <div className="mx-auto max-w-7xl p-8 px-4 py-16">
-          <article className="mx-auto max-w-xl space-y-3 text-center p-12">
+          <article className="mx-auto max-w-xl space-y-3 p-12 text-center">
             <h2 className="text-4xl font-semibold text-[#263048]">
               Udvalgte Boliger
             </h2>
@@ -92,6 +92,30 @@ function RouteComponent() {
           </div>
         </div>
       </section>
+
+      <section
+        id="subscribe"
+        className="flex h-fit min-h-64 items-center bg-[url('/imgs/subscribe.png')] bg-cover bg-center"
+      >
+        <article className="flex h-full w-full flex-col items-center justify-center gap-4 bg-[#455463]/95 text-white bg-blend-multiply md:flex-row md:gap-8">
+          <h2 className="max-w-120 px-4 text-3xl font-medium text-pretty md:px-0 md:text-wrap">
+            Tilmeld dig vores nyhedsbrev og hold dig opdateret til boligmarkedet
+          </h2>
+          <div className="w-86">
+            <input
+              type="email"
+              placeholder="Indtast din email addresse"
+              className="text-foreground anchor/email-input h-16 w-full rounded-xs bg-white px-4 focus:outline-none"
+            />
+            <img
+              src="/svgs/pil.svg"
+              alt="Pil"
+              className="anchored/email-input anchored-right-center -left-anchor-right-10 size-6"
+            />
+          </div>
+        </article>
+      </section>
     </main>
   );
 }
+
