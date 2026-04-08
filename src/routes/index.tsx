@@ -1,29 +1,37 @@
 import AboutUs from "#/components/about-us";
+import AgentCard from "#/components/agent";
 import { Bolig } from "#/components/bolig";
-import type { Property } from "#/lib/types";
+import type { Agent, Property } from "#/lib/types";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/")({
   component: RouteComponent,
   loader: async ({ context }) => {
-    const properties = await context.queryClient.ensureQueryData({
+    const data = await context.queryClient.ensureQueryData({
       queryKey: ["properties"],
-      queryFn: async (): Promise<Property[]> => {
+      queryFn: async (): Promise<{ homes: Property[]; agents: Agent[] }> => {
         const res = await fetch(
           "https://dinmaegler.onrender.com/homes?_limit=4",
         );
         if (!res.ok) {
           throw new Error("Failed to fetch properties");
         }
-        return res.json();
+        const agents = await fetch(
+          "https://dinmaegler.onrender.com/agents?_limit=3",
+        );
+        if (!agents.ok) throw new Error("failed to fetch agents");
+        return {
+          homes: await res.json(),
+          agents: await agents.json(),
+        };
       },
     });
-    return { properties };
+    return { data };
   },
 });
 
 function RouteComponent() {
-  const { properties } = Route.useLoaderData();
+  const { data } = Route.useLoaderData();
 
   return (
     <main className="flex h-screen flex-col">
@@ -68,7 +76,7 @@ function RouteComponent() {
       <AboutUs />
 
       <section className="bg-[#F8F8FB]">
-        <div className="mx-auto max-w-7xl p-8 px-4 py-16">
+        <div className="mx-auto p-8 px-4 py-16 md:max-w-4xl lg:max-w-7xl">
           <article className="mx-auto max-w-xl space-y-3 p-12 text-center">
             <h2 className="text-4xl font-semibold text-[#263048]">
               Udvalgte Boliger
@@ -80,7 +88,7 @@ function RouteComponent() {
           </article>
 
           <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
-            {properties.map((property: Property) => (
+            {data.homes.map((property: Property) => (
               <Bolig key={property.id} property={property} />
             ))}
           </div>
@@ -115,7 +123,32 @@ function RouteComponent() {
           </div>
         </article>
       </section>
+
+      <section className="bg-white py-16">
+        <div className="mx-auto max-w-7xl px-4">
+          <article className="mx-auto max-w-2xl space-y-4 text-center">
+            <h2 className="text-4xl font-semibold text-[#263048]">
+              Mød vores engagerede medarbejdere
+            </h2>
+            <p className="text-foreground mx-auto max-w-lg">
+              Din Mægler er garant for altid veluddannet assistance i dit
+              boligsalg. Kontakt en af vores medarbejder
+            </p>
+          </article>
+
+          <div className="mx-auto mt-12 grid max-w-5xl grid-cols-1 gap-8 md:grid-cols-3">
+            {data.agents.map((agent) => (
+              <AgentCard agent={agent} key={agent.id} />
+            ))}
+          </div>
+
+          <div className="mt-12 flex justify-center">
+            <button className="bg-primary rounded-xs px-12 py-4 text-white hover:cursor-pointer">
+              Se alle mæglere
+            </button>
+          </div>
+        </div>
+      </section>
     </main>
   );
 }
-
