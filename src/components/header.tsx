@@ -48,7 +48,7 @@ export default function Header() {
             </Link>
 
             <div className="hidden items-center gap-8 md:flex">
-              <Link to="/" className="hover:underline">
+              <Link to="/boliger" className="hover:underline">
                 Boliger til salg
               </Link>
               <Link to="/" className="hover:underline">

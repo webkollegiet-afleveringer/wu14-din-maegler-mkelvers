@@ -9,38 +9,65 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as BoligerRouteImport } from './routes/boliger'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as BoligIdRouteImport } from './routes/bolig.$id'
 
+const BoligerRoute = BoligerRouteImport.update({
+  id: '/boliger',
+  path: '/boliger',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BoligIdRoute = BoligIdRouteImport.update({
+  id: '/bolig/$id',
+  path: '/bolig/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/boliger': typeof BoligerRoute
+  '/bolig/$id': typeof BoligIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/boliger': typeof BoligerRoute
+  '/bolig/$id': typeof BoligIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/boliger': typeof BoligerRoute
+  '/bolig/$id': typeof BoligIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/boliger' | '/bolig/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/boliger' | '/bolig/$id'
+  id: '__root__' | '/' | '/boliger' | '/bolig/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  BoligerRoute: typeof BoligerRoute
+  BoligIdRoute: typeof BoligIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/boliger': {
+      id: '/boliger'
+      path: '/boliger'
+      fullPath: '/boliger'
+      preLoaderRoute: typeof BoligerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,11 +75,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/bolig/$id': {
+      id: '/bolig/$id'
+      path: '/bolig/$id'
+      fullPath: '/bolig/$id'
+      preLoaderRoute: typeof BoligIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  BoligerRoute: BoligerRoute,
+  BoligIdRoute: BoligIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
