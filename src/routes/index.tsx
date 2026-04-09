@@ -34,7 +34,7 @@ function RouteComponent() {
   const { data } = Route.useLoaderData();
 
   return (
-    <main className="flex h-screen flex-col">
+    <main className="flex flex-col">
       <section className="w-full">
         {/* *:[grid-area:1/1] is so the image and article occupy the same space */}
         <figure className="isolate grid bg-[#444444] *:[grid-area:1/1]">
@@ -105,7 +105,7 @@ function RouteComponent() {
         id="subscribe"
         className="flex h-fit min-h-64 items-center bg-[url('/imgs/subscribe.png')] bg-cover bg-center"
       >
-        <article className="flex h-full w-full flex-col items-center justify-center gap-4 bg-[#455463]/95 text-white bg-blend-multiply md:flex-row md:gap-8">
+        <article className="flex h-64 w-full flex-col items-center justify-center gap-4 bg-[#455463]/95 text-white bg-blend-multiply md:flex-row md:gap-8">
           <h2 className="max-w-120 px-4 text-3xl font-medium text-pretty md:px-0 md:text-wrap">
             Tilmeld dig vores nyhedsbrev og hold dig opdateret til boligmarkedet
           </h2>
@@ -150,7 +150,7 @@ function RouteComponent() {
         </div>
       </section>
 
-      <section id="app-download" className="bg-[#162A41] pt-16">
+      <section id="app-download" className="bg-primary pt-16">
         <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-8 px-4 lg:grid-cols-2">
           <article className="space-y-6 text-white">
             <h2 className="text-4xl leading-tight font-bold">
@@ -192,7 +192,7 @@ function RouteComponent() {
             <img
               src="/imgs/app-phone-1.png"
               alt="Din Mægler app browse screen"
-              className="anchored/phone2 -right-anchor-left-20 top-anchor-top-0 h-full w-auto object-contain"
+              className="anchored/phone2 -right-anchor-left-32 md:-right-anchor-left-20 top-anchor-top-0 h-full w-auto object-contain"
             />
           </figure>
         </div>
