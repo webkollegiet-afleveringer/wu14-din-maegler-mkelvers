@@ -61,12 +61,12 @@ function RouteComponent() {
                   placeholder="Søg på fx. glaskeramisk komfur, bryggers, kælder eller lignende"
                   className="w-full rounded-xs border border-[#D3DEE8] p-2 placeholder:text-[#7B7B7B] focus:outline-none"
                 />
-                <button
-                  type="submit"
-                  className="bg-primary w-full rounded-xs px-12 py-4 text-white hover:cursor-pointer md:w-auto"
-                >
-                  Søg
-                </button>
+                {/* <button */}
+                {/*   type="submit" */}
+                {/*   className="bg-primary w-full rounded-xs px-12 py-4 text-white hover:cursor-pointer md:w-auto" */}
+                {/* > */}
+                {/*   Søg */}
+                {/* </button> */}
               </div>
             </div>
           </article>
