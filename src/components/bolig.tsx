@@ -45,7 +45,7 @@ export function Bolig({ property }: { property: Property }) {
             {property.postalcode} {property.city}
           </p>
 
-          <p className="border-b border-[#D3DEE8] pb-4 text-foreground">
+          <p className="text-foreground border-b border-[#D3DEE8] pb-4">
             <span className="font-semibold">{property.type}</span>
             <span className="text-foreground">
               {" "}
