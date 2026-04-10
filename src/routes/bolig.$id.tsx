@@ -47,6 +47,35 @@ function RouteComponent() {
             </p>
           </div>
 
+          <div className="flex gap-8">
+            <img src="/svgs/images.svg" alt="images" />
+            <img src="/svgs/layers.svg" alt="layers" />
+            <svg
+              width="27"
+              height="38"
+              viewBox="0 0 27 38"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M13.296 1C6.50758 1 1 6.24202 1 12.6983C1 20.1271 9.19733 31.8997 12.2073 35.9659C12.3322 36.1375 12.496 36.2772 12.6852 36.3735C12.8744 36.4698 13.0837 36.52 13.296 36.52C13.5083 36.52 13.7176 36.4698 13.9068 36.3735C14.096 36.2772 14.2598 36.1375 14.3847 35.9659C17.3947 31.9014 25.592 20.1331 25.592 12.6983C25.592 6.24202 20.0844 1 13.296 1Z"
+                stroke="#7B7B7B"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+              <path
+                d="M13.2964 17.3944C15.56 17.3944 17.3951 15.5593 17.3951 13.2957C17.3951 11.0321 15.56 9.19702 13.2964 9.19702C11.0328 9.19702 9.19775 11.0321 9.19775 13.2957C9.19775 15.5593 11.0328 17.3944 13.2964 17.3944Z"
+                stroke="#7B7B7B"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+
+            <img src="/svgs/favorites.svg" alt="favorites" />
+          </div>
+
           <div className="text-primary flex flex-col text-2xl font-bold">
             <span className="md:place-self-end">Kr.</span>
             {formatPrice(property.price)}
