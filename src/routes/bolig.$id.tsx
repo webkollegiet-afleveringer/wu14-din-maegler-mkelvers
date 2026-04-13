@@ -1,5 +1,6 @@
 import type { Property } from "#/lib/types";
 import { fetchStreetMapFromCoordinates } from "#/lib/utils";
+import { useFavorites } from "#/lib/favorites";
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -77,6 +78,7 @@ function getPreviewImage(
 
 function RouteComponent() {
   const { property, mapLocation } = Route.useLoaderData();
+  const favorites = useFavorites();
   const [activeView, setActiveView] = useState<GalleryView | null>(null);
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
 
@@ -159,7 +161,25 @@ function RouteComponent() {
                 </button>
               ))}
 
-              <img src="/svgs/favorites.svg" alt="favorites" />
+              <button
+                type="button"
+                className="hover:cursor-pointer"
+                onClick={() => favorites.toggle(property.id)}
+                aria-label={
+                  favorites.has(property.id)
+                    ? "Fjern fra favoritter"
+                    : "Tilføj til favoritter"
+                }
+              >
+                <img
+                  src={
+                    favorites.has(property.id)
+                      ? "/svgs/favorites-filled.svg"
+                      : "/svgs/favorites.svg"
+                  }
+                  alt="favorites"
+                />
+              </button>
             </div>
 
             <div className="text-primary flex flex-col text-2xl font-bold">
