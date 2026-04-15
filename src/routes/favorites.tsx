@@ -56,9 +56,9 @@ function RouteComponent() {
     <main className="flex flex-col">
       <PageHeader title="Mine favoritboliger" />
 
-      <section className="mx-auto w-full max-w-[980px] px-4 py-16">
+      <section className="mx-auto w-full max-w-245 px-4 py-16">
         <div className="mb-6">
-          <div className="relative w-full max-w-[280px]">
+          <div className="relative w-full max-w-70">
             <svg
               width="20"
               height="20"
@@ -115,7 +115,7 @@ function RouteComponent() {
                   <img
                     src={property.images[0]?.url}
                     alt={property.adress1}
-                    className="h-44 w-full rounded-xs object-cover lg:h-full lg:min-h-[176px]"
+                    className="h-44 w-full rounded-xs object-cover lg:h-full lg:min-h-44"
                   />
                 </Link>
 
@@ -160,7 +160,7 @@ function RouteComponent() {
                   <button
                     type="button"
                     onClick={() => removeFavorite(property.id)}
-                    className="bg-primary w-full rounded-xs px-6 py-3 text-base font-medium text-white hover:cursor-pointer lg:w-[230px]"
+                    className="bg-primary w-full rounded-xs px-6 py-3 text-base font-medium text-white hover:cursor-pointer lg:w-57.5"
                   >
                     Fjern fra favoritter
                   </button>
