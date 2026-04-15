@@ -6,8 +6,10 @@ import User from "/svgs/user.svg";
 import Logo from "/svgs/logo.svg";
 import Menu from "/svgs/menu.svg";
 import Close from "/svgs/close.svg";
+import { useAuth } from "#/lib/context/authContext";
 
 export default function Header() {
+  const { isAuthenticated } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
@@ -54,9 +56,11 @@ export default function Header() {
               <Link to="/" className="hover:underline">
                 Mæglere
               </Link>
-              <Link to="/" className="hover:underline">
-                Mine favoritter
-              </Link>
+              {isAuthenticated && (
+                <Link to="/" className="hover:underline">
+                  Mine favoritter
+                </Link>
+              )}
               <Link to="/" className="hover:underline">
                 Kontakt os
               </Link>
