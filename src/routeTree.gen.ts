@@ -9,10 +9,16 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as MChar230glereRouteImport } from './routes/mæglere'
 import { Route as BoligerRouteImport } from './routes/boliger'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as BoligIdRouteImport } from './routes/bolig.$id'
 
+const MChar230glereRoute = MChar230glereRouteImport.update({
+  id: '/mæglere',
+  path: '/mæglere',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BoligerRoute = BoligerRouteImport.update({
   id: '/boliger',
   path: '/boliger',
@@ -32,35 +38,46 @@ const BoligIdRoute = BoligIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/boliger': typeof BoligerRoute
+  '/mæglere': typeof MChar230glereRoute
   '/bolig/$id': typeof BoligIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/boliger': typeof BoligerRoute
+  '/mæglere': typeof MChar230glereRoute
   '/bolig/$id': typeof BoligIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/boliger': typeof BoligerRoute
+  '/mæglere': typeof MChar230glereRoute
   '/bolig/$id': typeof BoligIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/boliger' | '/bolig/$id'
+  fullPaths: '/' | '/boliger' | '/mæglere' | '/bolig/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/boliger' | '/bolig/$id'
-  id: '__root__' | '/' | '/boliger' | '/bolig/$id'
+  to: '/' | '/boliger' | '/mæglere' | '/bolig/$id'
+  id: '__root__' | '/' | '/boliger' | '/mæglere' | '/bolig/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BoligerRoute: typeof BoligerRoute
+  MChar230glereRoute: typeof MChar230glereRoute
   BoligIdRoute: typeof BoligIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/mæglere': {
+      id: '/mæglere'
+      path: '/mæglere'
+      fullPath: '/mæglere'
+      preLoaderRoute: typeof MChar230glereRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/boliger': {
       id: '/boliger'
       path: '/boliger'
@@ -88,6 +105,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BoligerRoute: BoligerRoute,
+  MChar230glereRoute: MChar230glereRoute,
   BoligIdRoute: BoligIdRoute,
 }
 export const routeTree = rootRouteImport

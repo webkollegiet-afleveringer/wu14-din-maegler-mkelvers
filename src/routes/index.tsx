@@ -8,7 +8,7 @@ export const Route = createFileRoute("/")({
   component: RouteComponent,
   loader: async ({ context }) => {
     const data = await context.queryClient.ensureQueryData({
-      queryKey: ["properties"],
+      queryKey: ["properties", "agents"],
       queryFn: async (): Promise<{ homes: Property[]; agents: Agent[] }> => {
         const res = await fetch(
           "https://dinmaegler.onrender.com/homes?_limit=4",
@@ -145,9 +145,11 @@ function RouteComponent() {
           </div>
 
           <div className="mt-12 flex justify-center">
-            <button className="bg-primary rounded-xs px-12 py-4 text-white hover:cursor-pointer">
-              Se alle mæglere
-            </button>
+            <Link to="/mæglere">
+              <button className="bg-primary rounded-xs px-12 py-4 text-white hover:cursor-pointer">
+                Se alle mæglere
+              </button>
+            </Link>
           </div>
         </div>
       </section>
