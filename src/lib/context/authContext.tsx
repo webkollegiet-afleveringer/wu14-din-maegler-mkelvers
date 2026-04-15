@@ -10,6 +10,14 @@ import type { User } from "#/lib/types";
 
 const API_URL = "https://dinmaegler.onrender.com";
 
+function getStoredAuthToken(): string | null {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  return window.localStorage.getItem("token");
+}
+
 interface AuthResponse {
   jwt: string;
   user: User;
@@ -28,6 +36,11 @@ interface AuthContextValue {
   logout: () => void;
 }
 
+export type AuthState = Pick<
+  AuthContextValue,
+  "user" | "isAuthenticated" | "isLoading"
+>;
+
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 function AuthProvider({ children }: { children: ReactNode }) {
@@ -35,7 +48,7 @@ function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = getStoredAuthToken();
     if (!token) {
       setIsLoading(false);
       return;
@@ -103,4 +116,4 @@ function useAuth(): AuthContextValue {
   return ctx;
 }
 
-export { AuthProvider, useAuth };
+export { AuthProvider, useAuth, getStoredAuthToken };

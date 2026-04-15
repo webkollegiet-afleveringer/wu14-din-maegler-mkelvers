@@ -7,12 +7,14 @@ import Footer from "#/components/footer";
 
 import "@/styles.css";
 import type { QueryClient } from "@tanstack/react-query";
+import type { AuthState } from "#/lib/context/authContext";
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient;
+  auth: AuthState;
 }>()({
   component: RootComponent,
-})
+});
 
 function RootComponent() {
   return (

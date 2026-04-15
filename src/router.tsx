@@ -10,13 +10,13 @@ export function getRouter() {
         staleTime: 1000 * 60 * 5, // 5 minutes
         gcTime: 1000 * 60 * 60 * 5, // 5 hours
         refetchOnWindowFocus: false,
-      }
-    }
-  })
+      },
+    },
+  });
 
   const router = createTanStackRouter({
     routeTree,
-    context: { queryClient },
+    context: { queryClient, auth },
 
     scrollRestoration: true,
     defaultPreload: "intent",
@@ -27,7 +27,7 @@ export function getRouter() {
     router,
     queryClient,
     wrapQueryClient: true,
-  })
+  });
 
   return router;
 }
