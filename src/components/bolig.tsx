@@ -1,27 +1,8 @@
-import { cn } from "#/lib/utils";
+import { cn, formatPrice, getEnergyLabelColor } from "#/lib/utils";
 import type { Property } from "@/lib/types";
 import { Link } from "@tanstack/react-router";
 
 export function Bolig({ property }: { property: Property }) {
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("da-DK").format(price);
-  };
-
-  const getEnergyLabelColor = (label: string) => {
-    switch (label) {
-      case "A":
-        return "bg-[#10AC84]";
-      case "B":
-        return "bg-[#F2C94C]";
-      case "C":
-        return "bg-[#F2994A]";
-      case "D":
-        return "bg-[#EB5757]";
-      default:
-        return "bg-gray-500";
-    }
-  };
-
   return (
     <div className="overflow-hidden bg-white">
       <Link to="/bolig/$id" params={{ id: property.id }} className="block">

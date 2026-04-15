@@ -1,10 +1,66 @@
 import type { ClassValue } from "clsx";
+import type { EnergyLabel, Property } from "#/lib/types";
 
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
 export const cn = (...inputs: ClassValue[]) => {
   return twMerge(clsx(inputs));
+};
+
+export const formatPrice = (price: number): string => {
+  return new Intl.NumberFormat("da-DK").format(price);
+};
+
+const energyLabelColors: Record<EnergyLabel, string> = {
+  A: "bg-[#10AC84]",
+  B: "bg-[#F2C94C]",
+  C: "bg-[#F2994A]",
+  D: "bg-[#EB5757]",
+  E: "bg-gray-500",
+  F: "bg-gray-500",
+  G: "bg-gray-500",
+};
+
+export const getEnergyLabelColor = (label: EnergyLabel): string => {
+  return energyLabelColors[label];
+};
+
+export const normalizeSearchValue = (value: string): string => {
+  return value
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim();
+};
+
+export const matchesPropertySearch = (
+  property: Property,
+  searchQuery: string,
+): boolean => {
+  const normalizedQuery = normalizeSearchValue(searchQuery);
+
+  if (!normalizedQuery) {
+    return true;
+  }
+
+  const searchableValue = normalizeSearchValue(
+    [
+      property.adress1,
+      property.adress2 ?? "",
+      property.city,
+      String(property.postalcode),
+      property.type,
+      property.rooms,
+      String(property.livingspace),
+      property.energylabel,
+    ].join(" "),
+  );
+
+  return normalizedQuery
+    .split(/\s+/)
+    .filter(Boolean)
+    .every((term: string) => searchableValue.includes(term));
 };
 
 interface NominatimSearchResult {

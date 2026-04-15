@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as MChar230glereRouteImport } from './routes/mæglere'
+import { Route as FavoritesRouteImport } from './routes/favorites'
 import { Route as BoligerRouteImport } from './routes/boliger'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as BoligIdRouteImport } from './routes/bolig.$id'
@@ -17,6 +18,11 @@ import { Route as BoligIdRouteImport } from './routes/bolig.$id'
 const MChar230glereRoute = MChar230glereRouteImport.update({
   id: '/mæglere',
   path: '/mæglere',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FavoritesRoute = FavoritesRouteImport.update({
+  id: '/favorites',
+  path: '/favorites',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BoligerRoute = BoligerRouteImport.update({
@@ -38,12 +44,14 @@ const BoligIdRoute = BoligIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/boliger': typeof BoligerRoute
+  '/favorites': typeof FavoritesRoute
   '/mæglere': typeof MChar230glereRoute
   '/bolig/$id': typeof BoligIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/boliger': typeof BoligerRoute
+  '/favorites': typeof FavoritesRoute
   '/mæglere': typeof MChar230glereRoute
   '/bolig/$id': typeof BoligIdRoute
 }
@@ -51,20 +59,22 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/boliger': typeof BoligerRoute
+  '/favorites': typeof FavoritesRoute
   '/mæglere': typeof MChar230glereRoute
   '/bolig/$id': typeof BoligIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/boliger' | '/mæglere' | '/bolig/$id'
+  fullPaths: '/' | '/boliger' | '/favorites' | '/mæglere' | '/bolig/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/boliger' | '/mæglere' | '/bolig/$id'
-  id: '__root__' | '/' | '/boliger' | '/mæglere' | '/bolig/$id'
+  to: '/' | '/boliger' | '/favorites' | '/mæglere' | '/bolig/$id'
+  id: '__root__' | '/' | '/boliger' | '/favorites' | '/mæglere' | '/bolig/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BoligerRoute: typeof BoligerRoute
+  FavoritesRoute: typeof FavoritesRoute
   MChar230glereRoute: typeof MChar230glereRoute
   BoligIdRoute: typeof BoligIdRoute
 }
@@ -76,6 +86,13 @@ declare module '@tanstack/react-router' {
       path: '/mæglere'
       fullPath: '/mæglere'
       preLoaderRoute: typeof MChar230glereRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/favorites': {
+      id: '/favorites'
+      path: '/favorites'
+      fullPath: '/favorites'
+      preLoaderRoute: typeof FavoritesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/boliger': {
@@ -105,6 +122,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BoligerRoute: BoligerRoute,
+  FavoritesRoute: FavoritesRoute,
   MChar230glereRoute: MChar230glereRoute,
   BoligIdRoute: BoligIdRoute,
 }
