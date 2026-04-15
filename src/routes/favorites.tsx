@@ -6,37 +6,45 @@ import {
   getEnergyLabelColor,
   matchesPropertySearch,
 } from "#/lib/utils";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { getStoredAuthToken, useAuth } from "#/lib/context/authContext";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 
 export const Route = createFileRoute("/favorites")({
+  beforeLoad: () => {
+    if (!getStoredAuthToken()) {
+      throw redirect({ to: "/" });
+    }
+  },
   component: RouteComponent,
 });
 
 function RouteComponent() {
+  const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const favoriteIds = useFavorites((state) => state.ids);
   const removeFavorite = useFavorites((state) => state.remove);
   const [search, setSearch] = useState<string>("");
 
-  const { data: favoriteProperties = [], isLoading } = useQuery({
-    queryKey: ["favorite-properties", favoriteIds],
-    queryFn: async (): Promise<Property[]> => {
-      const responses = await Promise.all(
-        favoriteIds.map(async (id: string) => {
-          const res = await fetch(
-            `https://dinmaegler.onrender.com/homes/${id}`,
-          );
-          if (!res.ok) {
-            throw new Error(`Failed to fetch property with id: ${id}`);
-          }
-          return res.json() as Promise<Property>;
-        }),
-      );
-      return responses;
-    },
-    enabled: favoriteIds.length > 0,
-  });
+  const { data: favoriteProperties = [], isLoading: isFavoritesLoading } =
+    useQuery({
+      queryKey: ["favorite-properties", favoriteIds],
+      queryFn: async (): Promise<Property[]> => {
+        const responses = await Promise.all(
+          favoriteIds.map(async (id: string) => {
+            const res = await fetch(
+              `https://dinmaegler.onrender.com/homes/${id}`,
+            );
+            if (!res.ok) {
+              throw new Error(`Failed to fetch property with id: ${id}`);
+            }
+            return res.json() as Promise<Property>;
+          }),
+        );
+        return responses;
+      },
+      enabled: favoriteIds.length > 0 && isAuthenticated,
+    });
 
   const filteredFavorites = useMemo(() => {
     return favoriteProperties.filter((property: Property) =>
@@ -76,7 +84,7 @@ function RouteComponent() {
 
         <div className="mb-8 border-t border-[#D3DEE8]"></div>
 
-        {isLoading ? (
+        {isFavoritesLoading ? (
           <p className="text-foreground py-8">Henter favoritter...</p>
         ) : filteredFavorites.length === 0 ? (
           <div className="flex flex-col items-center justify-center border border-[#D3DEE8] bg-white py-24 text-center">
