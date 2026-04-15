@@ -2,7 +2,7 @@ import AboutUs from "#/components/about-us";
 import AgentCard from "#/components/agent";
 import { Bolig } from "#/components/bolig";
 import type { Agent, Property } from "#/lib/types";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/")({
   component: RouteComponent,
@@ -94,9 +94,11 @@ function RouteComponent() {
           </div>
 
           <div className="mt-12 flex justify-center">
-            <button className="bg-primary rounded-xs px-8 py-3 text-white hover:cursor-pointer">
-              Se alle boliger
-            </button>
+            <Link to="/boliger">
+              <button className="bg-primary rounded-xs px-8 py-3 text-white hover:cursor-pointer">
+                Se alle boliger
+              </button>
+            </Link>
           </div>
         </div>
       </section>
