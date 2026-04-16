@@ -138,7 +138,7 @@ function RouteComponent() {
         </figure>
 
         <div className="container mx-auto max-w-5xl px-4 py-12">
-          <div className="mb-6 flex flex-col items-start justify-between border-b border-[#D3DEE8] pb-6 md:flex-row md:items-center">
+          <div className="mb-6 flex flex-col items-start justify-between border-b border-[#D3DEE8] pb-8 md:flex-row md:items-center">
             <div>
               <h1 className="text-primary text-xl font-bold">
                 {property.adress1}
