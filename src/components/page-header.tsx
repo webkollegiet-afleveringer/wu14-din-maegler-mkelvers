@@ -26,7 +26,7 @@ export default function PageHeader({
         <h1
           className={cn(
             "text-center font-bold text-white",
-            auth ? "text-2xl md:text-3xl" : "text-4xl md:text-5xl",
+            auth ? "text-2xl md:text-3xl" : "text-3xl md:text-5xl",
           )}
         >
           {title}
