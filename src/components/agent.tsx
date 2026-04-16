@@ -1,5 +1,6 @@
 import type { Agent } from "#/lib/types.ts";
 import { cn } from "#/lib/utils";
+import { Link } from "@tanstack/react-router";
 
 type props = React.HTMLProps<HTMLDivElement> & {
   agent: Agent;
@@ -14,11 +15,13 @@ export default function AgentCard({ agent, className, ...elmProps }: props) {
         className,
       )}
     >
-      <img
-        src={agent.image.url}
-        alt={agent.image.name}
-        className="h-72 w-full object-cover"
-      />
+      <Link to="/mæglere/$id" params={{ id: agent.id }}>
+        <img
+          src={agent.image.url}
+          alt={agent.image.name}
+          className="h-72 w-full object-cover"
+        />
+      </Link>
       <div className="p-6 text-center">
         <h3 className="text-lg font-semibold text-[#263048]">{agent.name}</h3>
         <p className="text-sm text-[#7B7B7B]">{agent.title}</p>
