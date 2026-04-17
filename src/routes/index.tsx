@@ -3,7 +3,7 @@ import AgentCard from "#/components/agent";
 import { Bolig } from "#/components/bolig";
 import type { Agent, Property } from "#/lib/types";
 import { useToast } from "#/lib/context/toastContext";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 
 export const Route = createFileRoute("/")({
@@ -34,8 +34,20 @@ export const Route = createFileRoute("/")({
 
 function RouteComponent() {
   const { data } = Route.useLoaderData();
+  const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState("");
   const [email, setEmail] = useState("");
   const { addToast } = useToast();
+
+  const handleSearch = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const query = searchQuery.trim();
+
+    await navigate({
+      to: "/boliger",
+      search: query ? { q: query } : {},
+    });
+  };
 
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -83,19 +95,24 @@ function RouteComponent() {
               <p className="mb-3 text-sm">
                 Hvad skal din næste bolig indeholde
               </p>
-              <div className="grid grid-cols-1 gap-3 md:grid-cols-[1fr_auto]">
+              <form
+                className="grid grid-cols-1 gap-3 md:grid-cols-[1fr_auto]"
+                onSubmit={handleSearch}
+              >
                 <input
                   type="text"
+                  value={searchQuery}
+                  onChange={(event) => setSearchQuery(event.target.value)}
                   placeholder="Søg på fx. glaskeramisk komfur, bryggers, kælder eller lignende"
                   className="w-full rounded-xs border border-[#D3DEE8] p-2 placeholder:text-[#7B7B7B] focus:outline-none"
                 />
-                {/* <button */}
-                {/*   type="submit" */}
-                {/*   className="bg-primary w-full rounded-xs px-12 py-4 text-white hover:cursor-pointer md:w-auto" */}
-                {/* > */}
-                {/*   Søg */}
-                {/* </button> */}
-              </div>
+                <button
+                  type="submit"
+                  className="bg-primary w-full rounded-xs px-12 py-4 text-white hover:cursor-pointer md:w-auto"
+                >
+                  Søg
+                </button>
+              </form>
             </div>
           </article>
         </figure>

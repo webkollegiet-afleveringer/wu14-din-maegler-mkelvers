@@ -1,7 +1,7 @@
 import PageHeader from "#/components/page-header";
 import { Bolig } from "#/components/bolig";
 import type { Property, PropertyType } from "#/lib/types";
-import { useDebouncedValue } from "#/lib/utils";
+import { matchesPropertySearch, useDebouncedValue } from "#/lib/utils";
 import {
   PRICE_MIN,
   PRICE_STEP,
@@ -15,12 +15,17 @@ import {
   isPropertyType,
 } from "#/lib/property-filters";
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 
 const FILTER_DEBOUNCE_MS = 250;
 
 export const Route = createFileRoute("/boliger")({
+  validateSearch: (search: Record<string, unknown>) => {
+    return {
+      q: typeof search.q === "string" ? search.q : "",
+    };
+  },
   component: RouteComponent,
   loader: async ({ context }) => {
     const homes = await context.queryClient.ensureQueryData({
@@ -38,6 +43,8 @@ export const Route = createFileRoute("/boliger")({
 });
 
 function RouteComponent() {
+  const navigate = useNavigate();
+  const { q } = Route.useSearch();
   const { homes: allHomes } = Route.useLoaderData();
 
   const propertyTypes = useMemo(() => getPropertyTypes(allHomes), [allHomes]);
@@ -106,12 +113,26 @@ function RouteComponent() {
     maxPrice !== debouncedFilters.maxPrice;
 
   const filteredHomes = useMemo(() => {
-    if (isDebouncing || isFetching) {
-      return optimisticHomes;
+    const homesFromFilters =
+      isDebouncing || isFetching
+        ? optimisticHomes
+        : apiFilteredHomes ?? optimisticHomes;
+
+    if (!q.trim()) {
+      return homesFromFilters;
     }
 
-    return apiFilteredHomes ?? optimisticHomes;
-  }, [apiFilteredHomes, isDebouncing, isFetching, optimisticHomes]);
+    return homesFromFilters.filter((property: Property) => {
+      return matchesPropertySearch(property, q);
+    });
+  }, [apiFilteredHomes, isDebouncing, isFetching, optimisticHomes, q]);
+
+  const clearSearchQuery = async (): Promise<void> => {
+    await navigate({
+      to: "/boliger",
+      search: {},
+    });
+  };
 
   return (
     <main className="flex flex-col">
@@ -123,6 +144,21 @@ function RouteComponent() {
             Søg efter dit drømmehus
             <span className="bg-primary absolute bottom-0 left-0 h-1 w-16"></span>
           </h2>
+
+          {q.trim() ? (
+            <div className="flex items-center gap-3">
+              <p className="text-foreground text-sm">
+                Viser søgeresultater for: <span className="font-semibold">{q}</span>
+              </p>
+              <button
+                type="button"
+                onClick={() => void clearSearchQuery()}
+                className="text-primary text-sm font-medium hover:cursor-pointer hover:underline"
+              >
+                Fjern søgning
+              </button>
+            </div>
+          ) : null}
 
           <div className="flex flex-col gap-8 md:flex-row md:items-start">
             <div className="w-full max-w-xs space-y-2">
