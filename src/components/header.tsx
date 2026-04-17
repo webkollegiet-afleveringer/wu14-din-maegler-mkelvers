@@ -35,7 +35,10 @@ export default function Header() {
             </a>
           </div>
 
-          <Link to="/" className="flex items-center gap-2 hover:underline">
+          <Link
+            to="/auth/login"
+            className="flex items-center gap-2 hover:underline"
+          >
             <img src={User} alt="" className="size-4" />
             Log ind
           </Link>
@@ -57,11 +60,11 @@ export default function Header() {
                 Mæglere
               </Link>
               {isAuthenticated && (
-                <Link to="/" className="hover:underline">
+                <Link to="/favorites" className="hover:underline">
                   Mine favoritter
                 </Link>
               )}
-              <Link to="/" className="hover:underline">
+              <Link to="/contact" className="hover:underline">
                 Kontakt os
               </Link>
             </div>
@@ -79,16 +82,18 @@ export default function Header() {
         {menuOpen && (
           <div className="border-foreground/20 border-t bg-white md:hidden">
             <div className="mx-auto flex w-full max-w-4xl flex-col px-6 py-2">
-              <Link to="/" className="hover:underline">
+              <Link to="/boliger" className="hover:underline">
                 Boliger til salg
               </Link>
-              <Link to="/" className="hover:underline">
+              <Link to="/mæglere" className="hover:underline">
                 Mæglere
               </Link>
-              <Link to="/" className="hover:underline">
-                Mine favoritter
-              </Link>
-              <Link to="/" className="hover:underline">
+              {isAuthenticated && (
+                <Link to="/favorites" className="hover:underline">
+                  Mine favoritter
+                </Link>
+              )}
+              <Link to="/contact" className="hover:underline">
                 Kontakt os
               </Link>
             </div>
