@@ -380,7 +380,11 @@ function RouteComponent() {
               <h2 className="mb-4 text-xl font-bold text-[#2A2C30]">
                 Ansvalig mægler
               </h2>
-              <div className="flex flex-col gap-6 border border-gray-200 p-6 sm:flex-row">
+              <Link
+                to="/mæglere/$id"
+                params={{ id: property.agent.id }}
+                className="group flex flex-col gap-6 border border-gray-200 p-6 sm:flex-row"
+              >
                 <div className="w-full sm:w-1/2">
                   <div className="relative aspect-square">
                     <img
@@ -409,15 +413,9 @@ function RouteComponent() {
                 </div>
 
                 <div className="flex w-full flex-col justify-center sm:w-1/2">
-                  <Link
-                    to="/mæglere/$id"
-                    params={{ id: property.agent.id }}
-                    className="w-fit hover:underline"
-                  >
-                    <h3 className="text-lg font-bold text-[#162A41]">
-                      {property.agent.name}
-                    </h3>
-                  </Link>
+                  <h3 className="w-fit text-lg font-bold text-[#162A41] group-hover:underline">
+                    {property.agent.name}
+                  </h3>
                   <p className="mb-4 text-sm text-gray-400">
                     {property.agent.title}
                   </p>
@@ -468,7 +466,7 @@ function RouteComponent() {
                     </div>
                   </div>
                 </div>
-              </div>
+              </Link>
             </div>
           </div>
         </div>
