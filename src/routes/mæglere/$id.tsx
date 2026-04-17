@@ -4,7 +4,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import type { SubmitHandler } from "react-hook-form";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
 
 const agentContactSchema = z.object({
   name: z.string().min(2, "Navn skal være mindst 2 tegn"),
@@ -34,7 +35,9 @@ export const Route = createFileRoute("/mæglere/$id")({
 });
 
 function RouteComponent() {
+  const navigate = useNavigate();
   const { agent } = Route.useLoaderData();
+  const [propertySearch, setPropertySearch] = useState("");
   const {
     register,
     handleSubmit,
@@ -47,6 +50,18 @@ function RouteComponent() {
   const onSubmit: SubmitHandler<AgentContactFormData> = (data) => {
     console.log(`Kontakt formular til ${agent.name}:`, data);
     reset();
+  };
+
+  const handlePropertySearch = async (
+    event: React.FormEvent<HTMLFormElement>,
+  ): Promise<void> => {
+    event.preventDefault();
+    const query = propertySearch.trim();
+
+    await navigate({
+      to: "/boliger",
+      search: query ? { q: query } : {},
+    });
   };
 
   return (
@@ -224,11 +239,15 @@ function RouteComponent() {
             <h2 className="border-b border-[#D3DEE8] pb-2 text-xl font-medium text-[#2A2C30]">
               Søg bolig
             </h2>
-            <input
-              type="text"
-              placeholder="Søg efter boliger..."
-              className="mt-4 w-full border border-[#D3DEE8] p-2 focus:outline-none"
-            />
+            <form onSubmit={handlePropertySearch}>
+              <input
+                type="text"
+                value={propertySearch}
+                onChange={(event) => setPropertySearch(event.target.value)}
+                placeholder="Søg efter boliger..."
+                className="mt-4 w-full border border-[#D3DEE8] p-2 focus:outline-none"
+              />
+            </form>
           </section>
 
           <section className="bg-primary flex min-h-112 w-full flex-col items-center justify-center px-6 py-10 text-white md:h-110 md:w-85 md:px-4 md:py-0">
