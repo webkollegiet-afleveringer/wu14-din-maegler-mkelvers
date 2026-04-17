@@ -106,6 +106,10 @@ export interface StreetMapLocation {
   embedUrl: string;
 }
 
+const isUnknownRecord = (value: unknown): value is Record<string, unknown> => {
+  return typeof value === "object" && value !== null;
+};
+
 const isNominatimSearchResult = (
   value: unknown,
 ): value is NominatimSearchResult => {
@@ -149,6 +153,18 @@ const getAddressValue = (
   const value = address[key];
 
   return typeof value === "string" ? value : null;
+};
+
+const getStreetFromAddress = (address: unknown): string | null => {
+  if (!isUnknownRecord(address)) {
+    return null;
+  }
+
+  const street = ["road", "pedestrian", "residential"]
+    .map((key: string) => getAddressValue(address, key))
+    .find((value: string | null): value is string => value !== null);
+
+  return street ?? null;
 };
 
 export const fetchCoordinates = async (
@@ -246,13 +262,7 @@ export const fetchStreetMapFromCoordinates = async (
       return null;
     }
 
-    const address = data.address;
-    const street =
-      address && typeof address === "object"
-        ? (getAddressValue(address, "road") ??
-          getAddressValue(address, "pedestrian") ??
-          getAddressValue(address, "residential"))
-        : null;
+    const street = getStreetFromAddress(data.address);
 
     const minLat = parsedLat - 0.005;
     const maxLat = parsedLat + 0.005;
