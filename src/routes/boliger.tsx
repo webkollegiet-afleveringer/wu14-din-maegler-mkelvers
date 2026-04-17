@@ -14,7 +14,10 @@ import {
   getPropertyTypes,
   isPropertyType,
 } from "#/lib/property-filters";
+import { useAuth } from "#/lib/context/authContext";
+import { useToast } from "#/lib/context/toastContext";
 import { useQuery } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 
@@ -44,8 +47,13 @@ export const Route = createFileRoute("/boliger")({
 
 function RouteComponent() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const { user, isAuthenticated, isUpdatingFavorites, updateFavorites } = useAuth();
+  const { addToast } = useToast();
   const { q } = Route.useSearch();
   const { homes: allHomes } = Route.useLoaderData();
+
+  const favoriteIds = user?.homes ?? [];
 
   const propertyTypes = useMemo(() => getPropertyTypes(allHomes), [allHomes]);
   const priceCeiling = useMemo(() => getPriceCeiling(allHomes), [allHomes]);
@@ -132,6 +140,29 @@ function RouteComponent() {
       to: "/boliger",
       search: {},
     });
+  };
+
+  const handleToggleFavorite = async (
+    event: React.MouseEvent<HTMLButtonElement>,
+    propertyId: string,
+  ): Promise<void> => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (!isAuthenticated) {
+      return;
+    }
+
+    const nextHomes = favoriteIds.includes(propertyId)
+      ? favoriteIds.filter((id: string) => id !== propertyId)
+      : [...favoriteIds, propertyId];
+
+    try {
+      await updateFavorites(nextHomes);
+      await queryClient.invalidateQueries({ queryKey: ["favorite-properties"] });
+    } catch {
+      addToast("Kunne ikke opdatere favoritter");
+    }
   };
 
   return (
@@ -263,7 +294,21 @@ function RouteComponent() {
 
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
           {filteredHomes.map((property) => (
-            <Bolig key={property.id} property={property} />
+            <Bolig
+              key={property.id}
+              property={property}
+              favoriteButton={
+                isAuthenticated
+                  ? {
+                      isFavorite: favoriteIds.includes(property.id),
+                      isDisabled: isUpdatingFavorites,
+                      onToggle: (event) => {
+                        void handleToggleFavorite(event, property.id);
+                      },
+                    }
+                  : undefined
+              }
+            />
           ))}
         </div>
       </section>
