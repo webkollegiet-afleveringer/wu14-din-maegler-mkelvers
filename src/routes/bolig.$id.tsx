@@ -53,6 +53,11 @@ type PrimaryImage = {
   alt: string;
 };
 
+type GalleryImage = {
+  src: string;
+  alt: string;
+};
+
 function getPrimaryImage(property: Property): PrimaryImage {
   const [firstImage] = property.images;
 
@@ -69,12 +74,24 @@ function getPrimaryImage(property: Property): PrimaryImage {
   };
 }
 
+function getGalleryImages(property: Property): GalleryImage[] {
+  if (property.images.length === 0) {
+    return [getPrimaryImage(property)];
+  }
+
+  return property.images.map((image) => ({
+    src: image.url,
+    alt: image.name,
+  }));
+}
+
 function getPreviewImage(
   property: Property,
   view: GalleryView,
   mapEmbedUrl: string | null,
+  imageIndex: number,
 ): GalleryPreview {
-  const primaryImage = getPrimaryImage(property);
+  const galleryImages = getGalleryImages(property);
 
   if (view === "layers" && property.floorplan?.url) {
     return {
@@ -96,8 +113,8 @@ function getPreviewImage(
 
   return {
     type: "image",
-    src: primaryImage.src,
-    alt: primaryImage.alt,
+    src: galleryImages[imageIndex]?.src ?? galleryImages[0].src,
+    alt: galleryImages[imageIndex]?.alt ?? galleryImages[0].alt,
   };
 }
 
@@ -108,6 +125,7 @@ function RouteComponent() {
   const { addToast } = useToast();
   const queryClient = useQueryClient();
   const [activeView, setActiveView] = useState<GalleryView | null>(null);
+  const [activeImageIndex, setActiveImageIndex] = useState<number>(0);
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
 
   const favoriteIds = user?.homes ?? [];
@@ -123,8 +141,35 @@ function RouteComponent() {
     { view: "location", label: "Placering", icon: "/svgs/location_white.svg" },
   ];
 
+  const galleryImages = getGalleryImages(property);
+
+  const handleOpenView = (view: GalleryView): void => {
+    setActiveView(view);
+
+    if (view === "images") {
+      setActiveImageIndex(0);
+    }
+  };
+
+  const showPreviousImage = (): void => {
+    setActiveImageIndex((currentIndex) => {
+      return currentIndex === 0 ? galleryImages.length - 1 : currentIndex - 1;
+    });
+  };
+
+  const showNextImage = (): void => {
+    setActiveImageIndex((currentIndex) => {
+      return currentIndex === galleryImages.length - 1 ? 0 : currentIndex + 1;
+    });
+  };
+
   const activePreview = activeView
-    ? getPreviewImage(property, activeView, mapLocation?.embedUrl ?? null)
+    ? getPreviewImage(
+        property,
+        activeView,
+        mapLocation?.embedUrl ?? null,
+        activeImageIndex,
+      )
     : null;
   const primaryImage = getPrimaryImage(property);
   const canRenderPortal = typeof document !== "undefined";
@@ -205,7 +250,7 @@ function RouteComponent() {
                   key={item.view}
                   type="button"
                   className="cursor-pointer opacity-80 transition-opacity hover:opacity-100"
-                  onClick={() => setActiveView(item.view)}
+                  onClick={() => handleOpenView(item.view)}
                   aria-label={`Vis ${item.label.toLowerCase()}`}
                 >
                   <img src={item.icon} alt="" aria-hidden="true" />
@@ -442,11 +487,68 @@ function RouteComponent() {
                 onClick={(event) => event.stopPropagation()}
               >
                 {activePreview.type === "image" ? (
-                  <img
-                    src={activePreview.src}
-                    alt={activePreview.alt}
-                    className="aspect-video w-full object-cover"
-                  />
+                  <>
+                    <div className="relative">
+                      <img
+                        src={activePreview.src}
+                        alt={activePreview.alt}
+                        className="aspect-video w-full object-cover"
+                      />
+                      {activeView === "images" && galleryImages.length > 1 ? (
+                        <>
+                          <button
+                            type="button"
+                            className="absolute top-1/2 left-4 -translate-y-1/2 rounded-full bg-white/90 p-2 text-[#162A41] hover:cursor-pointer"
+                            onClick={showPreviousImage}
+                            aria-label="Forrige billede"
+                          >
+                            <svg
+                              width="18"
+                              height="18"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                d="M15 6L9 12L15 18"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                            </svg>
+                          </button>
+
+                          <button
+                            type="button"
+                            className="absolute top-1/2 right-4 -translate-y-1/2 rounded-full bg-white/90 p-2 text-[#162A41] hover:cursor-pointer"
+                            onClick={showNextImage}
+                            aria-label="Næste billede"
+                          >
+                            <svg
+                              width="18"
+                              height="18"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                d="M9 6L15 12L9 18"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                            </svg>
+                          </button>
+
+                          <div className="absolute right-1/2 bottom-4 translate-x-1/2 rounded-full bg-black/70 px-3 py-1 text-xs text-white">
+                            {activeImageIndex + 1} / {galleryImages.length}
+                          </div>
+                        </>
+                      ) : null}
+                    </div>
+                  </>
                 ) : (
                   <iframe
                     src={activePreview.src}
@@ -466,7 +568,7 @@ function RouteComponent() {
                           ? "opacity-100"
                           : "opacity-70 transition-opacity hover:opacity-100"
                       }
-                      onClick={() => setActiveView(item.view)}
+                      onClick={() => handleOpenView(item.view)}
                       aria-label={`Vis ${item.label.toLowerCase()}`}
                       aria-pressed={activeView === item.view}
                     >
