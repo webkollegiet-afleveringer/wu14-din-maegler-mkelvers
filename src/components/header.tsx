@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import PaperPlane from "/svgs/paper-plane.svg";
 import Phone from "/svgs/phone.svg";
 import User from "/svgs/user.svg";
@@ -9,8 +9,14 @@ import Close from "/svgs/close.svg";
 import { useAuth } from "#/lib/context/authContext";
 
 export default function Header() {
-  const { isAuthenticated } = useAuth();
+  const { user, isAuthenticated, logout } = useAuth();
+  const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
+
+  const handleLogout = async () => {
+    logout();
+    await navigate({ to: "/" });
+  };
 
   return (
     <>
@@ -35,13 +41,29 @@ export default function Header() {
             </a>
           </div>
 
-          <Link
-            to="/auth/login"
-            className="flex items-center gap-2 hover:underline"
-          >
-            <img src={User} alt="" className="size-4" />
-            Log ind
-          </Link>
+          {isAuthenticated ? (
+            <div className="flex items-center gap-4">
+              {user?.username && (
+                <span className="hidden sm:inline">Hej, {user.username}</span>
+              )}
+              <button
+                type="button"
+                onClick={() => void handleLogout()}
+                className="flex items-center gap-2 hover:cursor-pointer hover:underline"
+              >
+                <img src={User} alt="" className="size-4" />
+                Log ud
+              </button>
+            </div>
+          ) : (
+            <Link
+              to="/auth/login"
+              className="flex items-center gap-2 hover:underline"
+            >
+              <img src={User} alt="" className="size-4" />
+              Log ind
+            </Link>
+          )}
         </div>
       </header>
 
