@@ -15,7 +15,7 @@ export function getPropertyTypes(homes: readonly Property[]): PropertyType[] {
 
 export function getPriceCeiling(homes: readonly Property[]): number {
   const highestPrice = homes.reduce((highest: number, home: Property) => {
-    return home.price > highest ? home.price : highest;
+    return Math.max(highest, home.price);
   }, PRICE_MIN);
 
   const roundedCeiling = Math.ceil(highestPrice / PRICE_STEP) * PRICE_STEP;
@@ -63,8 +63,9 @@ export function filterHomes(
   maxPrice: number,
 ): Property[] {
   return homes.filter((home: Property) => {
-    const matchType = propertyType ? home.type === propertyType : true;
-    const matchPrice = home.price >= minPrice && home.price <= maxPrice;
-    return matchType && matchPrice;
+    const matchesType = !propertyType || home.type === propertyType;
+    const matchesPrice = home.price >= minPrice && home.price <= maxPrice;
+
+    return matchesType && matchesPrice;
   });
 }
