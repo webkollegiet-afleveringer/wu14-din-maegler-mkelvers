@@ -152,7 +152,6 @@ function RouteComponent() {
 
   const handleToggleFavorite = async (): Promise<void> => {
     if (!isAuthenticated) {
-      addToast("Du skal logge ind for at tilføje favoritter");
       return;
     }
 
@@ -213,26 +212,28 @@ function RouteComponent() {
                 </button>
               ))}
 
-              <button
-                type="button"
-                className="hover:cursor-pointer"
-                onClick={() => {
-                  void handleToggleFavorite();
-                }}
-                disabled={isUpdatingFavorites}
-                aria-label={
-                  isFavorite ? "Fjern fra favoritter" : "Tilføj til favoritter"
-                }
-              >
-                <img
-                  src={
-                    isFavorite
-                      ? "/svgs/favorites-filled.svg"
-                      : "/svgs/favorites.svg"
+              {isAuthenticated ? (
+                <button
+                  type="button"
+                  className="hover:cursor-pointer"
+                  onClick={() => {
+                    void handleToggleFavorite();
+                  }}
+                  disabled={isUpdatingFavorites}
+                  aria-label={
+                    isFavorite ? "Fjern fra favoritter" : "Tilføj til favoritter"
                   }
-                  alt="favorites"
-                />
-              </button>
+                >
+                  <img
+                    src={
+                      isFavorite
+                        ? "/svgs/favorites-filled.svg"
+                        : "/svgs/favorites.svg"
+                    }
+                    alt="favorites"
+                  />
+                </button>
+              ) : null}
             </div>
 
             <div className="text-primary flex flex-col text-2xl font-bold">
@@ -466,6 +467,30 @@ function RouteComponent() {
                       <img src={item.icon} alt="" aria-hidden="true" />
                     </button>
                   ))}
+                  {isAuthenticated ? (
+                    <button
+                      type="button"
+                      className="opacity-70 transition-opacity hover:opacity-100"
+                      onClick={() => {
+                        void handleToggleFavorite();
+                      }}
+                      disabled={isUpdatingFavorites}
+                      aria-label={
+                        isFavorite
+                          ? "Fjern fra favoritter"
+                          : "Tilføj til favoritter"
+                      }
+                    >
+                      <img
+                        src={
+                          isFavorite
+                            ? "/svgs/favorites-filled.svg"
+                            : "/svgs/favorites.svg"
+                        }
+                        alt="favorites"
+                      />
+                    </button>
+                  ) : null}
                 </div>
               </div>
             </div>,
