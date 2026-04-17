@@ -1,12 +1,23 @@
 import AboutUs from "#/components/about-us";
 import AgentCard from "#/components/agent";
 import { Bolig } from "#/components/bolig";
+import RouteError from "#/components/route-error";
 import type { Agent, Property } from "#/lib/types";
 import { useToast } from "#/lib/context/toastContext";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm, type SubmitHandler } from "react-hook-form";
 import { useState } from "react";
+import { z } from "zod";
+
+const newsletterSchema = z.object({
+  email: z.email("Indtast en gyldig e-mailadresse"),
+});
+
+type NewsletterFormData = z.infer<typeof newsletterSchema>;
 
 export const Route = createFileRoute("/")({
+  errorComponent: ({ error }) => <RouteError error={error} />,
   component: RouteComponent,
   loader: async ({ context }) => {
     const data = await context.queryClient.ensureQueryData({
@@ -34,23 +45,42 @@ export const Route = createFileRoute("/")({
 
 function RouteComponent() {
   const { data } = Route.useLoaderData();
-  const [email, setEmail] = useState("");
+  const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState("");
   const { addToast } = useToast();
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<NewsletterFormData>({
+    resolver: zodResolver(newsletterSchema),
+    defaultValues: {
+      email: "",
+    },
+  });
 
-  const handleSubscribe = async (e: React.FormEvent) => {
+  const handleSearch = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!email) return;
+    const query = searchQuery.trim();
 
+    await navigate({
+      to: "/boliger",
+      search: query ? { q: query } : {},
+    });
+  };
+
+  const handleSubscribe: SubmitHandler<NewsletterFormData> = async (data) => {
     try {
       const res = await fetch("https://dinmaegler.onrender.com/subscribers", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email: data.email }),
       });
 
       if (res.ok) {
         addToast("Du er nu tilmeldt nyhedsbrevet!");
-        setEmail("");
+        reset();
       } else if (res.status === 500) {
         addToast("Denne email er allerede tilmeldt nyhedsbrevet.");
       } else {
@@ -83,19 +113,24 @@ function RouteComponent() {
               <p className="mb-3 text-sm">
                 Hvad skal din næste bolig indeholde
               </p>
-              <div className="grid grid-cols-1 gap-3 md:grid-cols-[1fr_auto]">
+              <form
+                className="grid grid-cols-1 gap-3 md:grid-cols-[1fr_auto]"
+                onSubmit={handleSearch}
+              >
                 <input
                   type="text"
+                  value={searchQuery}
+                  onChange={(event) => setSearchQuery(event.target.value)}
                   placeholder="Søg på fx. glaskeramisk komfur, bryggers, kælder eller lignende"
                   className="w-full rounded-xs border border-[#D3DEE8] p-2 placeholder:text-[#7B7B7B] focus:outline-none"
                 />
-                {/* <button */}
-                {/*   type="submit" */}
-                {/*   className="bg-primary w-full rounded-xs px-12 py-4 text-white hover:cursor-pointer md:w-auto" */}
-                {/* > */}
-                {/*   Søg */}
-                {/* </button> */}
-              </div>
+                <button
+                  type="submit"
+                  className="bg-primary w-full rounded-xs px-12 py-4 text-white hover:cursor-pointer md:w-auto"
+                >
+                  Søg
+                </button>
+              </form>
             </div>
           </article>
         </figure>
@@ -139,20 +174,23 @@ function RouteComponent() {
           <h2 className="max-w-120 px-4 text-3xl font-medium text-pretty md:px-0 md:text-wrap">
             Tilmeld dig vores nyhedsbrev og hold dig opdateret til boligmarkedet
           </h2>
-          <form onSubmit={handleSubscribe} className="w-86">
+          <form onSubmit={handleSubmit(handleSubscribe)} className="w-86">
             <input
               type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              {...register("email")}
               placeholder="Indtast din email addresse"
               className="text-foreground anchor/email-input h-16 w-full rounded-xs bg-white px-4 focus:outline-none"
             />
             <button
               type="submit"
+              disabled={isSubmitting}
               className="anchored/email-input anchored-right-center -left-anchor-right-10 size-6"
             >
               <img src="/svgs/pil.svg" alt="Send" />
             </button>
+            {errors.email ? (
+              <p className="mt-2 text-sm text-red-200">{errors.email.message}</p>
+            ) : null}
           </form>
         </article>
       </section>

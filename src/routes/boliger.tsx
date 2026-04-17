@@ -1,7 +1,8 @@
 import PageHeader from "#/components/page-header";
 import { Bolig } from "#/components/bolig";
+import RouteError from "#/components/route-error";
 import type { Property, PropertyType } from "#/lib/types";
-import { useDebouncedValue } from "#/lib/utils";
+import { matchesPropertySearch, useDebouncedValue } from "#/lib/utils";
 import {
   PRICE_MIN,
   PRICE_STEP,
@@ -14,13 +15,22 @@ import {
   getPropertyTypes,
   isPropertyType,
 } from "#/lib/property-filters";
+import { useAuth } from "#/lib/context/authContext";
+import { useToast } from "#/lib/context/toastContext";
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 
 const FILTER_DEBOUNCE_MS = 250;
 
 export const Route = createFileRoute("/boliger")({
+  errorComponent: ({ error }) => <RouteError error={error} />,
+  validateSearch: (search: Record<string, unknown>) => {
+    return {
+      q: typeof search.q === "string" ? search.q : "",
+    };
+  },
   component: RouteComponent,
   loader: async ({ context }) => {
     const homes = await context.queryClient.ensureQueryData({
@@ -38,7 +48,14 @@ export const Route = createFileRoute("/boliger")({
 });
 
 function RouteComponent() {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const { user, isAuthenticated, isUpdatingFavorites, updateFavorites } = useAuth();
+  const { addToast } = useToast();
+  const { q } = Route.useSearch();
   const { homes: allHomes } = Route.useLoaderData();
+
+  const favoriteIds = user?.homes ?? [];
 
   const propertyTypes = useMemo(() => getPropertyTypes(allHomes), [allHomes]);
   const priceCeiling = useMemo(() => getPriceCeiling(allHomes), [allHomes]);
@@ -106,12 +123,49 @@ function RouteComponent() {
     maxPrice !== debouncedFilters.maxPrice;
 
   const filteredHomes = useMemo(() => {
-    if (isDebouncing || isFetching) {
-      return optimisticHomes;
+    const homesFromFilters =
+      isDebouncing || isFetching
+        ? optimisticHomes
+        : apiFilteredHomes ?? optimisticHomes;
+
+    if (!q.trim()) {
+      return homesFromFilters;
     }
 
-    return apiFilteredHomes ?? optimisticHomes;
-  }, [apiFilteredHomes, isDebouncing, isFetching, optimisticHomes]);
+    return homesFromFilters.filter((property: Property) => {
+      return matchesPropertySearch(property, q);
+    });
+  }, [apiFilteredHomes, isDebouncing, isFetching, optimisticHomes, q]);
+
+  const clearSearchQuery = async (): Promise<void> => {
+    await navigate({
+      to: "/boliger",
+      search: {},
+    });
+  };
+
+  const handleToggleFavorite = async (
+    event: React.MouseEvent<HTMLButtonElement>,
+    propertyId: string,
+  ): Promise<void> => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (!isAuthenticated) {
+      return;
+    }
+
+    const nextHomes = favoriteIds.includes(propertyId)
+      ? favoriteIds.filter((id: string) => id !== propertyId)
+      : [...favoriteIds, propertyId];
+
+    try {
+      await updateFavorites(nextHomes);
+      await queryClient.invalidateQueries({ queryKey: ["favorite-properties"] });
+    } catch {
+      addToast("Kunne ikke opdatere favoritter");
+    }
+  };
 
   return (
     <main className="flex flex-col">
@@ -123,6 +177,21 @@ function RouteComponent() {
             Søg efter dit drømmehus
             <span className="bg-primary absolute bottom-0 left-0 h-1 w-16"></span>
           </h2>
+
+          {q.trim() ? (
+            <div className="flex items-center gap-3">
+              <p className="text-foreground text-sm">
+                Viser søgeresultater for: <span className="font-semibold">{q}</span>
+              </p>
+              <button
+                type="button"
+                onClick={() => void clearSearchQuery()}
+                className="text-primary text-sm font-medium hover:cursor-pointer hover:underline"
+              >
+                Fjern søgning
+              </button>
+            </div>
+          ) : null}
 
           <div className="flex flex-col gap-8 md:flex-row md:items-start">
             <div className="w-full max-w-xs space-y-2">
@@ -227,7 +296,21 @@ function RouteComponent() {
 
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
           {filteredHomes.map((property) => (
-            <Bolig key={property.id} property={property} />
+            <Bolig
+              key={property.id}
+              property={property}
+              favoriteButton={
+                isAuthenticated
+                  ? {
+                      isFavorite: favoriteIds.includes(property.id),
+                      isDisabled: isUpdatingFavorites,
+                      onToggle: (event) => {
+                        void handleToggleFavorite(event, property.id);
+                      },
+                    }
+                  : undefined
+              }
+            />
           ))}
         </div>
       </section>

@@ -1,9 +1,24 @@
 import PageHeader from "#/components/page-header";
+import RouteError from "#/components/route-error";
 import type { Agent } from "#/lib/types";
-import { createFileRoute } from "@tanstack/react-router";
-import type { FormEvent } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import type { SubmitHandler } from "react-hook-form";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
+
+const agentContactSchema = z.object({
+  name: z.string().min(2, "Navn skal være mindst 2 tegn"),
+  email: z.email("Ugyldig email"),
+  subject: z.string().min(3, "Emne skal være mindst 3 tegn"),
+  message: z.string().min(10, "Besked skal være mindst 10 tegn"),
+});
+
+type AgentContactFormData = z.infer<typeof agentContactSchema>;
 
 export const Route = createFileRoute("/mæglere/$id")({
+  errorComponent: ({ error }) => <RouteError error={error} />,
   component: RouteComponent,
   loader: async ({ params, context }) => {
     const id = params.id;
@@ -22,10 +37,33 @@ export const Route = createFileRoute("/mæglere/$id")({
 });
 
 function RouteComponent() {
+  const navigate = useNavigate();
   const { agent } = Route.useLoaderData();
+  const [propertySearch, setPropertySearch] = useState("");
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<AgentContactFormData>({
+    resolver: zodResolver(agentContactSchema),
+  });
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>): void => {
+  const onSubmit: SubmitHandler<AgentContactFormData> = (data) => {
+    console.log(`Kontakt formular til ${agent.name}:`, data);
+    reset();
+  };
+
+  const handlePropertySearch = async (
+    event: React.FormEvent<HTMLFormElement>,
+  ): Promise<void> => {
     event.preventDefault();
+    const query = propertySearch.trim();
+
+    await navigate({
+      to: "/boliger",
+      search: query ? { q: query } : {},
+    });
   };
 
   return (
@@ -113,7 +151,7 @@ function RouteComponent() {
 
             <form
               className="rounded-sm border border-[#D3DEE8] p-2 md:p-4"
-              onSubmit={handleSubmit}
+              onSubmit={handleSubmit(onSubmit)}
             >
               <h3 className="after:border-primary text-xl font-medium text-[#2A2C30] after:mt-1 after:block after:w-10 after:border-b-3">
                 Kontakt {agent.name}
@@ -125,9 +163,15 @@ function RouteComponent() {
                   </span>
                   <input
                     type="text"
+                    {...register("name")}
                     className="border border-[#D3DEE8] p-2 focus:outline-none"
                     placeholder="Indtast navn"
                   />
+                  {errors.name && (
+                    <span className="text-sm text-red-500">
+                      {errors.name.message}
+                    </span>
+                  )}
                 </label>
                 <label className="flex flex-col gap-1">
                   <span className="text-foreground text-sm font-medium">
@@ -135,9 +179,15 @@ function RouteComponent() {
                   </span>
                   <input
                     type="email"
+                    {...register("email")}
                     className="border border-[#D3DEE8] p-2 focus:outline-none"
                     placeholder="Indtast e-mail"
                   />
+                  {errors.email && (
+                    <span className="text-sm text-red-500">
+                      {errors.email.message}
+                    </span>
+                  )}
                 </label>
 
                 <label className="flex flex-col gap-1 md:col-span-2">
@@ -146,9 +196,15 @@ function RouteComponent() {
                   </span>
                   <input
                     type="text"
+                    {...register("subject")}
                     className="border border-[#D3DEE8] p-2 focus:outline-none"
                     placeholder="Hvad drejer din henvendelse om?"
                   />
+                  {errors.subject && (
+                    <span className="text-sm text-red-500">
+                      {errors.subject.message}
+                    </span>
+                  )}
                 </label>
 
                 <label className="flex flex-col gap-1 md:col-span-2">
@@ -156,15 +212,22 @@ function RouteComponent() {
                     Besked
                   </span>
                   <textarea
+                    {...register("message")}
                     className="resize-none rounded-xs border border-[#D3DEE8] p-2 focus:outline-none"
                     placeholder="Skriv din besked her..."
                     rows={4}
                   />
+                  {errors.message && (
+                    <span className="text-sm text-red-500">
+                      {errors.message.message}
+                    </span>
+                  )}
                 </label>
 
                 <button
                   type="submit"
-                  className="bg-primary hover:bg-primary-dark w-fit px-4 py-2 text-white transition-colors"
+                  disabled={isSubmitting}
+                  className="bg-primary hover:bg-primary-dark w-fit px-4 py-2 text-white transition-colors disabled:opacity-50"
                 >
                   Send besked
                 </button>
@@ -176,13 +239,17 @@ function RouteComponent() {
         <aside className="flex w-full flex-col gap-4 md:w-fit">
           <section className="bg-[#EEF7FF] p-4 md:p-8">
             <h2 className="border-b border-[#D3DEE8] pb-2 text-xl font-medium text-[#2A2C30]">
-              Search Property
+              Søg bolig
             </h2>
-            <input
-              type="text"
-              placeholder="Search for properties..."
-              className="mt-4 w-full border border-[#D3DEE8] p-2 focus:outline-none"
-            />
+            <form onSubmit={handlePropertySearch}>
+              <input
+                type="text"
+                value={propertySearch}
+                onChange={(event) => setPropertySearch(event.target.value)}
+                placeholder="Søg efter boliger..."
+                className="mt-4 w-full border border-[#D3DEE8] p-2 focus:outline-none"
+              />
+            </form>
           </section>
 
           <section className="bg-primary flex min-h-112 w-full flex-col items-center justify-center px-6 py-10 text-white md:h-110 md:w-85 md:px-4 md:py-0">
@@ -194,9 +261,9 @@ function RouteComponent() {
               For Rent Or Buy
             </h2>
             <h4 className="mt-4 flex max-w-xs flex-col text-center">
-              Call Us Now
+              Ring til os
               <span className="mt-2 text-2xl font-medium md:text-3xl">
-                +00 123 456 789
+                +45 7070 4000
               </span>
             </h4>
           </section>

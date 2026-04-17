@@ -2,7 +2,19 @@ import { cn, formatPrice, getEnergyLabelColor } from "#/lib/utils";
 import type { Property } from "@/lib/types";
 import { Link } from "@tanstack/react-router";
 
-export function Bolig({ property }: { property: Property }) {
+interface BoligFavoriteButton {
+  isFavorite: boolean;
+  isDisabled: boolean;
+  onToggle: (event: React.MouseEvent<HTMLButtonElement>) => void;
+}
+
+interface BoligProps {
+  property: Property;
+  favoriteButton?: BoligFavoriteButton;
+}
+
+export function Bolig({ property, favoriteButton }: BoligProps) {
+
   return (
     <div className="overflow-hidden bg-white">
       <Link to="/bolig/$id" params={{ id: property.id }} className="block">
@@ -14,6 +26,30 @@ export function Bolig({ property }: { property: Property }) {
             decoding="async"
             className="h-64 w-full object-cover"
           />
+
+          {favoriteButton ? (
+            <button
+              type="button"
+              onClick={favoriteButton.onToggle}
+              disabled={favoriteButton.isDisabled}
+              aria-label={
+                favoriteButton.isFavorite
+                  ? "Fjern fra favoritter"
+                  : "Tilføj til favoritter"
+              }
+              className="absolute top-4 right-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white hover:cursor-pointer"
+            >
+              <img
+                src={
+                  favoriteButton.isFavorite
+                    ? "/svgs/favorites-card-filled.svg"
+                    : "/svgs/favorites-card.svg"
+                }
+                alt="favorites"
+                className="size-5"
+              />
+            </button>
+          ) : null}
         </figure>
 
         <div className="space-y-3 p-6">
