@@ -16,6 +16,8 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as MChar230glereIndexRouteImport } from './routes/mæglere/index'
 import { Route as MChar230glereIdRouteImport } from './routes/mæglere/$id'
 import { Route as BoligIdRouteImport } from './routes/bolig.$id'
+import { Route as AuthRegisterRouteImport } from './routes/auth/register'
+import { Route as AuthLoginRouteImport } from './routes/auth/login'
 
 const FavoritesRoute = FavoritesRouteImport.update({
   id: '/favorites',
@@ -52,12 +54,24 @@ const BoligIdRoute = BoligIdRouteImport.update({
   path: '/bolig/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthRegisterRoute = AuthRegisterRouteImport.update({
+  id: '/auth/register',
+  path: '/auth/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthLoginRoute = AuthLoginRouteImport.update({
+  id: '/auth/login',
+  path: '/auth/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/boliger': typeof BoligerRoute
   '/contact': typeof ContactRoute
   '/favorites': typeof FavoritesRoute
+  '/auth/login': typeof AuthLoginRoute
+  '/auth/register': typeof AuthRegisterRoute
   '/bolig/$id': typeof BoligIdRoute
   '/mæglere/$id': typeof MChar230glereIdRoute
   '/mæglere/': typeof MChar230glereIndexRoute
@@ -67,6 +81,8 @@ export interface FileRoutesByTo {
   '/boliger': typeof BoligerRoute
   '/contact': typeof ContactRoute
   '/favorites': typeof FavoritesRoute
+  '/auth/login': typeof AuthLoginRoute
+  '/auth/register': typeof AuthRegisterRoute
   '/bolig/$id': typeof BoligIdRoute
   '/mæglere/$id': typeof MChar230glereIdRoute
   '/mæglere': typeof MChar230glereIndexRoute
@@ -77,6 +93,8 @@ export interface FileRoutesById {
   '/boliger': typeof BoligerRoute
   '/contact': typeof ContactRoute
   '/favorites': typeof FavoritesRoute
+  '/auth/login': typeof AuthLoginRoute
+  '/auth/register': typeof AuthRegisterRoute
   '/bolig/$id': typeof BoligIdRoute
   '/mæglere/$id': typeof MChar230glereIdRoute
   '/mæglere/': typeof MChar230glereIndexRoute
@@ -88,6 +106,8 @@ export interface FileRouteTypes {
     | '/boliger'
     | '/contact'
     | '/favorites'
+    | '/auth/login'
+    | '/auth/register'
     | '/bolig/$id'
     | '/mæglere/$id'
     | '/mæglere/'
@@ -97,6 +117,8 @@ export interface FileRouteTypes {
     | '/boliger'
     | '/contact'
     | '/favorites'
+    | '/auth/login'
+    | '/auth/register'
     | '/bolig/$id'
     | '/mæglere/$id'
     | '/mæglere'
@@ -106,6 +128,8 @@ export interface FileRouteTypes {
     | '/boliger'
     | '/contact'
     | '/favorites'
+    | '/auth/login'
+    | '/auth/register'
     | '/bolig/$id'
     | '/mæglere/$id'
     | '/mæglere/'
@@ -116,6 +140,8 @@ export interface RootRouteChildren {
   BoligerRoute: typeof BoligerRoute
   ContactRoute: typeof ContactRoute
   FavoritesRoute: typeof FavoritesRoute
+  AuthLoginRoute: typeof AuthLoginRoute
+  AuthRegisterRoute: typeof AuthRegisterRoute
   BoligIdRoute: typeof BoligIdRoute
   MChar230glereIdRoute: typeof MChar230glereIdRoute
   MChar230glereIndexRoute: typeof MChar230glereIndexRoute
@@ -172,6 +198,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BoligIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth/register': {
+      id: '/auth/register'
+      path: '/auth/register'
+      fullPath: '/auth/register'
+      preLoaderRoute: typeof AuthRegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/login': {
+      id: '/auth/login'
+      path: '/auth/login'
+      fullPath: '/auth/login'
+      preLoaderRoute: typeof AuthLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -180,6 +220,8 @@ const rootRouteChildren: RootRouteChildren = {
   BoligerRoute: BoligerRoute,
   ContactRoute: ContactRoute,
   FavoritesRoute: FavoritesRoute,
+  AuthLoginRoute: AuthLoginRoute,
+  AuthRegisterRoute: AuthRegisterRoute,
   BoligIdRoute: BoligIdRoute,
   MChar230glereIdRoute: MChar230glereIdRoute,
   MChar230glereIndexRoute: MChar230glereIndexRoute,

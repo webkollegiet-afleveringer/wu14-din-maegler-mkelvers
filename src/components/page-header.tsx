@@ -1,4 +1,5 @@
 import { cn } from "#/lib/utils";
+import { Link } from "@tanstack/react-router";
 
 type props = React.HTMLProps<HTMLDivElement> & {
   title: string;
@@ -13,6 +14,12 @@ export default function PageHeader({
 }: props) {
   // Extract "Login" from "Account Login" for the breadcrumb
   const breadcrumb = title.replace("Account ", "");
+  const breadcrumbLink =
+    title === "Account Register"
+      ? "/auth/register"
+      : title === "Account Login"
+        ? "/auth/login"
+        : "/";
 
   return (
     <div
@@ -34,9 +41,16 @@ export default function PageHeader({
 
         {auth && (
           <div className="flex items-center gap-2 text-sm font-light md:text-base">
-            <span>Home</span>
+            <Link to="/" className="hover:text-white/80">
+              Home
+            </Link>
             <span className="text-white/30">|</span>
-            <span className="text-white/30">{breadcrumb}</span>
+            <Link
+              to={breadcrumbLink}
+              className="text-white/30 hover:text-white/80"
+            >
+              {breadcrumb}
+            </Link>
           </div>
         )}
       </article>
