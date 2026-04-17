@@ -3,6 +3,7 @@ import { RouterProvider, createRouter } from "@tanstack/react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { routeTree } from "./routeTree.gen";
 import { AuthProvider } from "./lib/context/authContext";
+import NotFound from "./components/not-found";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -20,6 +21,8 @@ const router = createRouter({
   },
   defaultPreload: "intent",
   scrollRestoration: true,
+  defaultNotFoundComponent: NotFound,
+  defaultErrorComponent: NotFound,
 });
 
 declare module "@tanstack/react-router" {
