@@ -40,7 +40,7 @@ function RouteComponent() {
   return (
     <main>
       <PageHeader title="Kontakt os" />
-      <section className="m-12 mx-auto max-w-6xl">
+      <section className="mx-auto max-w-6xl px-4 py-12">
         <h2 className="border-primary text-3xl font-medium text-[#2A2C30] after:mt-5 after:block after:w-30 after:border-4">
           Vi sidder klar til at besvare dine spørgsmål
         </h2>
