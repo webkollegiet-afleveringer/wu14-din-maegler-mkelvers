@@ -2,6 +2,7 @@ import type { ClassValue } from "clsx";
 import type { EnergyLabel, Property } from "#/lib/types";
 
 import { clsx } from "clsx";
+import { useEffect, useState } from "react";
 import { twMerge } from "tailwind-merge";
 
 export const cn = (...inputs: ClassValue[]) => {
@@ -61,6 +62,22 @@ export const matchesPropertySearch = (
     .split(/\s+/)
     .filter(Boolean)
     .every((term: string) => searchableValue.includes(term));
+};
+
+export const useDebouncedValue = <T>(value: T, delayMs: number): T => {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      setDebouncedValue(value);
+    }, delayMs);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [value, delayMs]);
+
+  return debouncedValue;
 };
 
 interface NominatimSearchResult {

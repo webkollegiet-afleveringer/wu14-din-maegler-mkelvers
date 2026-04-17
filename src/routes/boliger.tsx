@@ -1,30 +1,24 @@
 import PageHeader from "#/components/page-header";
 import { Bolig } from "#/components/bolig";
 import type { Property, PropertyType } from "#/lib/types";
+import { useDebouncedValue } from "#/lib/utils";
+import {
+  PRICE_MIN,
+  PRICE_STEP,
+  clampMaxPrice,
+  clampMinPrice,
+  filterHomes,
+  formatDkk,
+  getPriceCeiling,
+  getPricePercent,
+  getPropertyTypes,
+  isPropertyType,
+} from "#/lib/property-filters";
+import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { useState, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 
-const PRICE_MIN = 0;
-const PRICE_MAX = 12000000;
-const PRICE_STEP = 100000;
-const PROPERTY_TYPES: PropertyType[] = [
-  "Villa",
-  "Ejerlejlighed",
-  "Landejendom",
-  "Byhus",
-];
-
-function isPropertyType(value: string): value is PropertyType {
-  return PROPERTY_TYPES.some((propertyType) => propertyType === value);
-}
-
-function formatDkk(value: number): string {
-  return `${value.toLocaleString("da-DK")} kr.`;
-}
-
-function getPricePercent(value: number): number {
-  return ((value - PRICE_MIN) / (PRICE_MAX - PRICE_MIN)) * 100;
-}
+const FILTER_DEBOUNCE_MS = 250;
 
 export const Route = createFileRoute("/boliger")({
   component: RouteComponent,
@@ -44,28 +38,80 @@ export const Route = createFileRoute("/boliger")({
 });
 
 function RouteComponent() {
-  const { homes } = Route.useLoaderData();
+  const { homes: allHomes } = Route.useLoaderData();
+
+  const propertyTypes = useMemo(() => getPropertyTypes(allHomes), [allHomes]);
+  const priceCeiling = useMemo(() => getPriceCeiling(allHomes), [allHomes]);
+
   const [propertyType, setPropertyType] = useState<PropertyType | "">("");
   const [minPrice, setMinPrice] = useState<number>(PRICE_MIN);
-  const [maxPrice, setMaxPrice] = useState<number>(PRICE_MAX);
+  const [maxPrice, setMaxPrice] = useState<number>(priceCeiling);
+
+  const activeFilters = useMemo(
+    () => ({ propertyType, minPrice, maxPrice }),
+    [propertyType, minPrice, maxPrice],
+  );
+  const debouncedFilters = useDebouncedValue(activeFilters, FILTER_DEBOUNCE_MS);
+
+  useEffect(() => {
+    setMinPrice((currentMinPrice) => Math.min(currentMinPrice, priceCeiling));
+    setMaxPrice((currentMaxPrice) => Math.min(currentMaxPrice, priceCeiling));
+  }, [priceCeiling]);
 
   const handleMinPriceChange = (value: number): void => {
-    const nextMin = Math.min(value, maxPrice);
-    setMinPrice(nextMin);
+    setMinPrice(clampMinPrice(value, maxPrice));
   };
 
   const handleMaxPriceChange = (value: number): void => {
-    const nextMax = Math.max(value, minPrice);
-    setMaxPrice(nextMax);
+    setMaxPrice(clampMaxPrice(value, minPrice, priceCeiling));
   };
 
+  const optimisticHomes = useMemo(() => {
+    return filterHomes(allHomes, propertyType, minPrice, maxPrice);
+  }, [allHomes, propertyType, minPrice, maxPrice]);
+
+  const { data: apiFilteredHomes, isFetching } = useQuery({
+    queryKey: [
+      "filtered-properties",
+      debouncedFilters.propertyType,
+      debouncedFilters.minPrice,
+      debouncedFilters.maxPrice,
+    ],
+    queryFn: async (): Promise<Property[]> => {
+      const params = new URLSearchParams({
+        price_gte: String(debouncedFilters.minPrice),
+        price_lte: String(debouncedFilters.maxPrice),
+      });
+
+      if (debouncedFilters.propertyType) {
+        params.set("type_eq", debouncedFilters.propertyType);
+      }
+
+      const res = await fetch(
+        `https://dinmaegler.onrender.com/homes?${params.toString()}`,
+      );
+
+      if (!res.ok) {
+        throw new Error("Failed to fetch filtered properties");
+      }
+
+      return res.json();
+    },
+    placeholderData: (previousData) => previousData ?? allHomes,
+  });
+
+  const isDebouncing =
+    propertyType !== debouncedFilters.propertyType ||
+    minPrice !== debouncedFilters.minPrice ||
+    maxPrice !== debouncedFilters.maxPrice;
+
   const filteredHomes = useMemo(() => {
-    return homes.filter((home) => {
-      const matchType = propertyType ? home.type === propertyType : true;
-      const matchPrice = home.price >= minPrice && home.price <= maxPrice;
-      return matchType && matchPrice;
-    });
-  }, [homes, propertyType, minPrice, maxPrice]);
+    if (isDebouncing || isFetching) {
+      return optimisticHomes;
+    }
+
+    return apiFilteredHomes ?? optimisticHomes;
+  }, [apiFilteredHomes, isDebouncing, isFetching, optimisticHomes]);
 
   return (
     <main className="flex flex-col">
@@ -97,14 +143,14 @@ function RouteComponent() {
                       return;
                     }
 
-                    if (isPropertyType(value)) {
+                    if (isPropertyType(value, propertyTypes)) {
                       setPropertyType(value);
                     }
                   }}
                   className="text-foreground w-full appearance-none rounded-sm border border-[#D3DEE8] bg-white px-4 py-3 pr-10 focus:outline-none"
                 >
                   <option value="">Ejendomstype</option>
-                  {PROPERTY_TYPES.map((type) => (
+                  {propertyTypes.map((type) => (
                     <option key={type} value={type}>
                       {type}
                     </option>
@@ -137,8 +183,8 @@ function RouteComponent() {
                   <div
                     className="absolute top-1/2 h-1 -translate-y-1/2 rounded-full bg-[#AFAFAF]"
                     style={{
-                      left: `${getPricePercent(minPrice)}%`,
-                      right: `${100 - getPricePercent(maxPrice)}%`,
+                      left: `${getPricePercent(minPrice, PRICE_MIN, priceCeiling)}%`,
+                      right: `${100 - getPricePercent(maxPrice, PRICE_MIN, priceCeiling)}%`,
                     }}
                   />
 
@@ -146,7 +192,7 @@ function RouteComponent() {
                     id="min-price"
                     type="range"
                     min={PRICE_MIN}
-                    max={PRICE_MAX}
+                    max={priceCeiling}
                     step={PRICE_STEP}
                     value={minPrice}
                     onChange={(e) =>
@@ -160,7 +206,7 @@ function RouteComponent() {
                     id="max-price"
                     type="range"
                     min={PRICE_MIN}
-                    max={PRICE_MAX}
+                    max={priceCeiling}
                     step={PRICE_STEP}
                     value={maxPrice}
                     onChange={(e) =>
