@@ -1,14 +1,40 @@
+import { createFileRoute } from "@tanstack/react-router"
 import PageHeader from "#/components/page-header";
-import { createFileRoute } from "@tanstack/react-router";
-import type { FormEvent } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import type { SubmitHandler } from "react-hook-form";
+
+const contactSchema = z.object({
+  name: z.string().min(2, "Navn skal være mindst 2 tegn"),
+  email: z.email("Ugyldig email"),
+  subject: z.string().min(3, "Emne skal være mindst 3 tegn"),
+  message: z.string().min(10, "Besked skal være mindst 10 tegn"),
+  newsletter: z.boolean().default(false),
+});
+
+type ContactFormData = z.infer<typeof contactSchema>;
 
 export const Route = createFileRoute("/contact")({
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const handleSubmit = (event: FormEvent<HTMLFormElement>): void => {
-    event.preventDefault();
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<ContactFormData>({
+    resolver: zodResolver(contactSchema),
+    defaultValues: {
+      newsletter: false,
+    },
+  });
+
+  const onSubmit: SubmitHandler<ContactFormData> = (data) => {
+    console.log("Kontakt formular data:", data);
+    reset();
   };
 
   return (
@@ -20,14 +46,14 @@ function RouteComponent() {
         </h2>
         <p className="mt-6 max-w-2xl">
           Der kan opstå tvivl om mange ting nå man gerne vil, eller er i gang
-          med at sælge sin bolig.  Vores medarbejdere sider klar alle ugens dage
+          med at sælge sin bolig. Vores medarbejdere sider klar alle ugens dage
           til at svare på dine spørgsmål.
         </p>
 
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
           <form
             className="mt-8 flex h-full flex-col rounded-xs border border-[#D3DEE8] p-4 md:p-6"
-            onSubmit={handleSubmit}
+            onSubmit={handleSubmit(onSubmit)}
           >
             <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
               <label className="flex flex-col gap-1">
@@ -36,9 +62,15 @@ function RouteComponent() {
                 </span>
                 <input
                   type="text"
+                  {...register("name")}
                   className="border border-[#D3DEE8] px-3 py-3 focus:outline-none"
                   placeholder="Indtast navn"
                 />
+                {errors.name && (
+                  <span className="text-sm text-red-500">
+                    {errors.name.message}
+                  </span>
+                )}
               </label>
               <label className="flex flex-col gap-1">
                 <span className="text-foreground text-sm font-medium">
@@ -46,9 +78,15 @@ function RouteComponent() {
                 </span>
                 <input
                   type="email"
+                  {...register("email")}
                   className="border border-[#D3DEE8] px-3 py-3 focus:outline-none"
                   placeholder="Indtast e-mail"
                 />
+                {errors.email && (
+                  <span className="text-sm text-red-500">
+                    {errors.email.message}
+                  </span>
+                )}
               </label>
 
               <label className="flex flex-col gap-1 md:col-span-2">
@@ -57,9 +95,15 @@ function RouteComponent() {
                 </span>
                 <input
                   type="text"
+                  {...register("subject")}
                   className="border border-[#D3DEE8] px-3 py-3 focus:outline-none"
                   placeholder="Indtast emne"
                 />
+                {errors.subject && (
+                  <span className="text-sm text-red-500">
+                    {errors.subject.message}
+                  </span>
+                )}
               </label>
 
               <label className="flex flex-col gap-1 md:col-span-2">
@@ -67,16 +111,23 @@ function RouteComponent() {
                   Besked
                 </span>
                 <textarea
+                  {...register("message")}
                   className="resize-none rounded-xs border border-[#D3DEE8] px-3 py-3 focus:outline-none"
                   placeholder="Skriv din besked her..."
                   rows={6}
                 />
+                {errors.message && (
+                  <span className="text-sm text-red-500">
+                    {errors.message.message}
+                  </span>
+                )}
               </label>
 
               <div className="flex items-center gap-2 md:col-span-2">
                 <input
                   type="checkbox"
                   id="newsletter"
+                  {...register("newsletter")}
                   className="border border-[#D3DEE8]"
                 />
                 <label htmlFor="newsletter" className="text-sm">
@@ -86,7 +137,8 @@ function RouteComponent() {
 
               <button
                 type="submit"
-                className="bg-primary hover:bg-primary-dark w-fit px-5 py-3 text-white transition-colors"
+                disabled={isSubmitting}
+                className="bg-primary hover:bg-primary-dark w-fit px-5 py-3 text-white transition-colors disabled:opacity-50"
               >
                 Send besked
               </button>
