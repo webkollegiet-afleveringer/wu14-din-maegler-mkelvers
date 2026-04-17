@@ -1,5 +1,6 @@
 import PageHeader from "#/components/page-header";
 import { Bolig } from "#/components/bolig";
+import RouteError from "#/components/route-error";
 import type { Property, PropertyType } from "#/lib/types";
 import { matchesPropertySearch, useDebouncedValue } from "#/lib/utils";
 import {
@@ -24,6 +25,7 @@ import { useEffect, useMemo, useState } from "react";
 const FILTER_DEBOUNCE_MS = 250;
 
 export const Route = createFileRoute("/boliger")({
+  errorComponent: ({ error }) => <RouteError error={error} />,
   validateSearch: (search: Record<string, unknown>) => {
     return {
       q: typeof search.q === "string" ? search.q : "",

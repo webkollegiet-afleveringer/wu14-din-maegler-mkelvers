@@ -1,12 +1,14 @@
 import AboutUs from "#/components/about-us";
 import AgentCard from "#/components/agent";
 import { Bolig } from "#/components/bolig";
+import RouteError from "#/components/route-error";
 import type { Agent, Property } from "#/lib/types";
 import { useToast } from "#/lib/context/toastContext";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 
 export const Route = createFileRoute("/")({
+  errorComponent: ({ error }) => <RouteError error={error} />,
   component: RouteComponent,
   loader: async ({ context }) => {
     const data = await context.queryClient.ensureQueryData({

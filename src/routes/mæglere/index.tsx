@@ -1,9 +1,11 @@
 import AgentCard from "#/components/agent";
 import PageHeader from "#/components/page-header";
+import RouteError from "#/components/route-error";
 import type { Agent } from "#/lib/types";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/mæglere/")({
+  errorComponent: ({ error }) => <RouteError error={error} />,
   component: RouteComponent,
   loader: async ({ context }) => {
     const agents = await context.queryClient.ensureQueryData({

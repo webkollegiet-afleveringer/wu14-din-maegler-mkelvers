@@ -1,4 +1,5 @@
 import type { Property } from "#/lib/types";
+import RouteError from "#/components/route-error";
 import { fetchStreetMapFromCoordinates } from "#/lib/utils";
 import { useAuth } from "#/lib/context/authContext";
 import { useToast } from "#/lib/context/toastContext";
@@ -8,6 +9,7 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
 export const Route = createFileRoute("/bolig/$id")({
+  errorComponent: ({ error }) => <RouteError error={error} />,
   component: RouteComponent,
   loader: async ({ context, params }) => {
     const { id } = params;

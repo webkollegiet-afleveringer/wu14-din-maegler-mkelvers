@@ -1,4 +1,5 @@
 import PageHeader from "#/components/page-header";
+import RouteError from "#/components/route-error";
 import type { Agent } from "#/lib/types";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -17,6 +18,7 @@ const agentContactSchema = z.object({
 type AgentContactFormData = z.infer<typeof agentContactSchema>;
 
 export const Route = createFileRoute("/mæglere/$id")({
+  errorComponent: ({ error }) => <RouteError error={error} />,
   component: RouteComponent,
   loader: async ({ params, context }) => {
     const id = params.id;
