@@ -26,7 +26,7 @@ function RouteComponent() {
   return (
     <main>
       <PageHeader title="Kontakt en medarbejder" />
-      <section className="container mx-auto mt-20 grid grid-cols-1 gap-8 px-4 md:grid-cols-2 md:px-0">
+      <section className="m-12 mx-auto grid max-w-6xl grid-cols-1 gap-8 px-4 md:grid-cols-2 md:px-0">
         <article className="border border-[#D3DEE8] p-4 md:p-8">
           <figure className="flex flex-col gap-4 md:flex-row">
             <img

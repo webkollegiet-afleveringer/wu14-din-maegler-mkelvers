@@ -53,7 +53,7 @@ export default function Header() {
               <Link to="/boliger" className="hover:underline">
                 Boliger til salg
               </Link>
-              <Link to="/" className="hover:underline">
+              <Link to="/mæglere" className="hover:underline">
                 Mæglere
               </Link>
               {isAuthenticated && (
