@@ -1,0 +1,39 @@
+{
+  "name": "wu14-din-maegler",
+  "private": true,
+  "type": "module",
+  "imports": {
+    "#/*": "./src/*"
+  },
+  "scripts": {
+    "dev": "vite dev --port 3000",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@tailwindcss/vite": "^4.1.18",
+    "@tanstack/react-devtools": "latest",
+    "@tanstack/react-query": "^5.96.2",
+    "@tanstack/react-router": "latest",
+    "@tanstack/react-router-devtools": "latest",
+    "@tanstack/react-router-ssr-query": "^1.166.10",
+    "@tanstack/router-plugin": "^1.132.0",
+    "@toolwind/anchors": "^1.0.10",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "tailwind-merge": "^3.5.0",
+    "tailwindcss": "^4.1.18",
+    "zustand": "^5.0.12"
+  },
+  "devDependencies": {
+    "@tanstack/devtools-vite": "latest",
+    "@types/node": "^25.5.0",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@vitejs/plugin-react": "^6.0.1",
+    "prettier": "^3.8.1",
+    "prettier-plugin-tailwindcss": "^0.7.2",
+    "typescript": "^6.0.2",
+    "vite": "^8.0.2"
+  }
+}

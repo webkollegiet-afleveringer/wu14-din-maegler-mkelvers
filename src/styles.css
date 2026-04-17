@@ -1,0 +1,87 @@
+@import "tailwindcss";
+@plugin "@toolwind/anchors";
+
+:root {
+  --bg: #fff;
+  --fg: #333333;
+  --primary: #162a41;
+}
+
+@theme base {
+  --color-background: var(--bg);
+  --color-foreground: var(--fg);
+  --color-primary: var(--primary);
+
+  --text-shadow-outline:
+    -1px -1px 0 black, 1px -1px 0 black, -1px 1px 0 black, 1px 1px 0 black;
+}
+
+@layer base {
+  html,
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@layer components {
+  .toast-fade {
+    animation: toast-fade-in-out 3s ease-in-out forwards;
+  }
+
+  .range-input {
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
+  }
+
+  .range-input::-webkit-slider-runnable-track {
+    background: transparent;
+  }
+
+  .range-input::-moz-range-track {
+    background: transparent;
+  }
+
+  .range-input::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    pointer-events: auto;
+    height: 1.15rem;
+    width: 1.15rem;
+    border-radius: 9999px;
+    border: 0;
+    background: #c2c2c2;
+    cursor: pointer;
+  }
+
+  .range-input::-moz-range-thumb {
+    pointer-events: auto;
+    height: 1.15rem;
+    width: 1.15rem;
+    border-radius: 9999px;
+    border: 0;
+    background: #c2c2c2;
+    cursor: pointer;
+  }
+}
+
+@keyframes toast-fade-in-out {
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  12% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  84% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
