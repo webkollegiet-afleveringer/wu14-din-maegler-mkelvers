@@ -121,6 +121,12 @@ function RouteComponent() {
             <p className="text-foreground max-w-md">
               Du har ikke tilfojet nogen boliger til dine favoritter.
             </p>
+            <Link
+              to="/boliger"
+              className="text-primary mt-4 text-sm font-medium hover:underline"
+            >
+              Gå til boliger til salg
+            </Link>
           </div>
         ) : (
           <div className="space-y-6">
