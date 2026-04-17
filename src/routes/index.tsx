@@ -5,7 +5,16 @@ import RouteError from "#/components/route-error";
 import type { Agent, Property } from "#/lib/types";
 import { useToast } from "#/lib/context/toastContext";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm, type SubmitHandler } from "react-hook-form";
 import { useState } from "react";
+import { z } from "zod";
+
+const newsletterSchema = z.object({
+  email: z.email("Indtast en gyldig e-mailadresse"),
+});
+
+type NewsletterFormData = z.infer<typeof newsletterSchema>;
 
 export const Route = createFileRoute("/")({
   errorComponent: ({ error }) => <RouteError error={error} />,
@@ -38,8 +47,18 @@ function RouteComponent() {
   const { data } = Route.useLoaderData();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
-  const [email, setEmail] = useState("");
   const { addToast } = useToast();
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<NewsletterFormData>({
+    resolver: zodResolver(newsletterSchema),
+    defaultValues: {
+      email: "",
+    },
+  });
 
   const handleSearch = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -51,20 +70,17 @@ function RouteComponent() {
     });
   };
 
-  const handleSubscribe = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email) return;
-
+  const handleSubscribe: SubmitHandler<NewsletterFormData> = async (data) => {
     try {
       const res = await fetch("https://dinmaegler.onrender.com/subscribers", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email: data.email }),
       });
 
       if (res.ok) {
         addToast("Du er nu tilmeldt nyhedsbrevet!");
-        setEmail("");
+        reset();
       } else if (res.status === 500) {
         addToast("Denne email er allerede tilmeldt nyhedsbrevet.");
       } else {
@@ -158,20 +174,23 @@ function RouteComponent() {
           <h2 className="max-w-120 px-4 text-3xl font-medium text-pretty md:px-0 md:text-wrap">
             Tilmeld dig vores nyhedsbrev og hold dig opdateret til boligmarkedet
           </h2>
-          <form onSubmit={handleSubscribe} className="w-86">
+          <form onSubmit={handleSubmit(handleSubscribe)} className="w-86">
             <input
               type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              {...register("email")}
               placeholder="Indtast din email addresse"
               className="text-foreground anchor/email-input h-16 w-full rounded-xs bg-white px-4 focus:outline-none"
             />
             <button
               type="submit"
+              disabled={isSubmitting}
               className="anchored/email-input anchored-right-center -left-anchor-right-10 size-6"
             >
               <img src="/svgs/pil.svg" alt="Send" />
             </button>
+            {errors.email ? (
+              <p className="mt-2 text-sm text-red-200">{errors.email.message}</p>
+            ) : null}
           </form>
         </article>
       </section>
