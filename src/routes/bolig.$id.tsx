@@ -3,7 +3,7 @@ import { fetchStreetMapFromCoordinates } from "#/lib/utils";
 import { useAuth } from "#/lib/context/authContext";
 import { useToast } from "#/lib/context/toastContext";
 import { useQueryClient } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
@@ -362,9 +362,15 @@ function RouteComponent() {
                 </div>
 
                 <div className="flex w-full flex-col justify-center sm:w-1/2">
-                  <h3 className="text-lg font-bold text-[#162A41]">
-                    {property.agent.name}
-                  </h3>
+                  <Link
+                    to="/mæglere/$id"
+                    params={{ id: property.agent.id }}
+                    className="w-fit hover:underline"
+                  >
+                    <h3 className="text-lg font-bold text-[#162A41]">
+                      {property.agent.name}
+                    </h3>
+                  </Link>
                   <p className="mb-4 text-sm text-gray-400">
                     {property.agent.title}
                   </p>
