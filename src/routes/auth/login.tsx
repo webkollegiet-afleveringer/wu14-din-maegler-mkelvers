@@ -1,7 +1,17 @@
 import PageHeader from "#/components/page-header";
 import { useAuth } from "#/lib/context/authContext";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState, type FormEvent } from "react";
+import { useState } from "react";
+import { type SubmitHandler, useForm } from "react-hook-form";
+import { z } from "zod";
+
+const loginSchema = z.object({
+  email: z.email("Indtast en gyldig e-mailadresse"),
+  password: z.string().min(1, "Indtast dit password"),
+});
+
+type LoginFormData = z.infer<typeof loginSchema>;
 
 export const Route = createFileRoute("/auth/login")({
   component: RouteComponent,
@@ -10,23 +20,27 @@ export const Route = createFileRoute("/auth/login")({
 function RouteComponent() {
   const { login } = useAuth();
   const navigate = useNavigate();
-  const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const onSubmit: SubmitHandler<LoginFormData> = async (data) => {
     setError(null);
-    setIsSubmitting(true);
 
     try {
-      await login(email, password);
+      await login(data.email, data.password);
       await navigate({ to: "/" });
     } catch {
       setError("Login fejlede. Tjek dine oplysninger og prøv igen.");
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -38,29 +52,31 @@ function RouteComponent() {
           Log ind på din konto
         </h1>
 
-        <form className="mx-auto mt-10 max-w-md" onSubmit={handleSubmit}>
+        <form className="mx-auto mt-10 max-w-md" onSubmit={handleSubmit(onSubmit)}>
           <label className="mb-5 block">
             <span className="text-foreground mb-2 block text-sm">Email</span>
             <input
               type="email"
+              {...register("email")}
               placeholder="Email"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              required
               className="w-full border border-[#D3DEE8] bg-white px-4 py-3 text-sm focus:outline-none"
             />
+            {errors.email ? (
+              <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
+            ) : null}
           </label>
 
           <label className="mb-5 block">
             <span className="mb-2 block text-sm">Password</span>
             <input
               type="password"
+              {...register("password")}
               placeholder="Password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              required
               className="w-full border border-[#D3DEE8] bg-white px-4 py-3 text-sm focus:outline-none"
             />
+            {errors.password ? (
+              <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>
+            ) : null}
           </label>
 
           {error && <p className="mb-5 text-sm text-red-600">{error}</p>}

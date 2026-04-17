@@ -1,7 +1,24 @@
 import PageHeader from "#/components/page-header";
 import { useAuth } from "#/lib/context/authContext";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState, type FormEvent } from "react";
+import { useState } from "react";
+import { type SubmitHandler, useForm } from "react-hook-form";
+import { z } from "zod";
+
+const registerSchema = z
+  .object({
+    fullName: z.string().min(2, "Fulde navn skal være mindst 2 tegn"),
+    email: z.email("Indtast en gyldig e-mailadresse"),
+    password: z.string().min(1, "Indtast et password"),
+    confirmPassword: z.string().min(1, "Bekræft dit password"),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords matcher ikke.",
+    path: ["confirmPassword"],
+  });
+
+type RegisterFormData = z.infer<typeof registerSchema>;
 
 export const Route = createFileRoute("/auth/register")({
   component: RouteComponent,
@@ -10,31 +27,29 @@ export const Route = createFileRoute("/auth/register")({
 function RouteComponent() {
   const { register } = useAuth();
   const navigate = useNavigate();
-  const [fullName, setFullName] = useState<string>("");
-  const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
-  const [confirmPassword, setConfirmPassword] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const {
+    register: registerField,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<RegisterFormData>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      fullName: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+    },
+  });
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const onSubmit: SubmitHandler<RegisterFormData> = async (data) => {
     setError(null);
 
-    if (password !== confirmPassword) {
-      setError("Passwords matcher ikke.");
-      return;
-    }
-
-    setIsSubmitting(true);
-
     try {
-      await register(fullName, email, password);
+      await register(data.fullName, data.email, data.password);
       await navigate({ to: "/" });
     } catch {
       setError("Oprettelse fejlede. Prøv igen.");
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -46,19 +61,20 @@ function RouteComponent() {
           Opret bruger hos Din Mægler
         </h1>
 
-        <form className="mx-auto mt-10 max-w-md" onSubmit={handleSubmit}>
+        <form className="mx-auto mt-10 max-w-md" onSubmit={handleSubmit(onSubmit)}>
           <label className="mb-5 block">
             <span className="text-foreground mb-2 block text-sm">
               Fulde navn
             </span>
             <input
               type="text"
+              {...registerField("fullName")}
               placeholder="Fulde navn"
-              value={fullName}
-              onChange={(event) => setFullName(event.target.value)}
-              required
               className="w-full border border-[#D3DEE8] bg-white px-4 py-3 text-sm focus:outline-none"
             />
+            {errors.fullName ? (
+              <p className="mt-1 text-sm text-red-600">{errors.fullName.message}</p>
+            ) : null}
           </label>
 
           <label className="mb-5 block">
@@ -67,36 +83,41 @@ function RouteComponent() {
             </span>
             <input
               type="email"
+              {...registerField("email")}
               placeholder="Email adresse"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              required
               className="w-full border border-[#D3DEE8] bg-white px-4 py-3 text-sm focus:outline-none"
             />
+            {errors.email ? (
+              <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
+            ) : null}
           </label>
 
           <label className="mb-5 block">
             <span className="mb-2 block text-sm">Password</span>
             <input
               type="password"
+              {...registerField("password")}
               placeholder="Password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              required
               className="w-full border border-[#D3DEE8] bg-white px-4 py-3 text-sm focus:outline-none"
             />
+            {errors.password ? (
+              <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>
+            ) : null}
           </label>
 
           <label className="mb-5 block">
             <span className="mb-2 block text-sm">Bekræft password</span>
             <input
               type="password"
+              {...registerField("confirmPassword")}
               placeholder="Bekræft password"
-              value={confirmPassword}
-              onChange={(event) => setConfirmPassword(event.target.value)}
-              required
               className="w-full border border-[#D3DEE8] bg-white px-4 py-3 text-sm focus:outline-none"
             />
+            {errors.confirmPassword ? (
+              <p className="mt-1 text-sm text-red-600">
+                {errors.confirmPassword.message}
+              </p>
+            ) : null}
           </label>
 
           {error && <p className="mb-5 text-sm text-red-600">{error}</p>}
