@@ -2,7 +2,9 @@ import AboutUs from "#/components/about-us";
 import AgentCard from "#/components/agent";
 import { Bolig } from "#/components/bolig";
 import type { Agent, Property } from "#/lib/types";
+import { useToast } from "#/lib/context/toastContext";
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useState } from "react";
 
 export const Route = createFileRoute("/")({
   component: RouteComponent,
@@ -32,6 +34,32 @@ export const Route = createFileRoute("/")({
 
 function RouteComponent() {
   const { data } = Route.useLoaderData();
+  const [email, setEmail] = useState("");
+  const { addToast } = useToast();
+
+  const handleSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+
+    try {
+      const res = await fetch("https://dinmaegler.onrender.com/subscribers", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
+      if (res.ok) {
+        addToast("Du er nu tilmeldt nyhedsbrevet!");
+        setEmail("");
+      } else if (res.status === 500) {
+        addToast("Denne email er allerede tilmeldt nyhedsbrevet.");
+      } else {
+        addToast("Der opstod en fejl. Prøv igen.");
+      }
+    } catch {
+      addToast("Der opstod en netværksfejl.");
+    }
+  };
 
   return (
     <main className="flex flex-col">
@@ -111,18 +139,21 @@ function RouteComponent() {
           <h2 className="max-w-120 px-4 text-3xl font-medium text-pretty md:px-0 md:text-wrap">
             Tilmeld dig vores nyhedsbrev og hold dig opdateret til boligmarkedet
           </h2>
-          <div className="w-86">
+          <form onSubmit={handleSubscribe} className="w-86">
             <input
               type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               placeholder="Indtast din email addresse"
               className="text-foreground anchor/email-input h-16 w-full rounded-xs bg-white px-4 focus:outline-none"
             />
-            <img
-              src="/svgs/pil.svg"
-              alt="Pil"
+            <button
+              type="submit"
               className="anchored/email-input anchored-right-center -left-anchor-right-10 size-6"
-            />
-          </div>
+            >
+              <img src="/svgs/pil.svg" alt="Send" />
+            </button>
+          </form>
         </article>
       </section>
 
