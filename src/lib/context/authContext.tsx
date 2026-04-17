@@ -27,12 +27,14 @@ interface AuthContextValue {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  isUpdatingFavorites: boolean;
   login: (identifier: string, password: string) => Promise<void>;
   register: (
     username: string,
     email: string,
     password: string,
   ) => Promise<void>;
+  updateFavorites: (homes: string[]) => Promise<void>;
   logout: () => void;
 }
 
@@ -46,6 +48,7 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isUpdatingFavorites, setIsUpdatingFavorites] = useState(false);
 
   useEffect(() => {
     const token = getStoredAuthToken();
@@ -90,6 +93,58 @@ function AuthProvider({ children }: { children: ReactNode }) {
     setUser(data.user);
   };
 
+  const updateFavorites = async (homes: string[]) => {
+    const token = getStoredAuthToken();
+    if (!token || !user) {
+      throw new Error("Not authenticated");
+    }
+
+    const previousHomes = user.homes;
+
+    setUser((currentUser) => {
+      if (!currentUser) {
+        return currentUser;
+      }
+
+      return {
+        ...currentUser,
+        homes,
+      };
+    });
+
+    setIsUpdatingFavorites(true);
+
+    try {
+      const res = await fetch(`${API_URL}/users/${user.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ homes }),
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to update favorites");
+      }
+    } catch (error) {
+      setUser((currentUser) => {
+        if (!currentUser) {
+          return currentUser;
+        }
+
+        return {
+          ...currentUser,
+          homes: previousHomes,
+        };
+      });
+
+      throw error;
+    } finally {
+      setIsUpdatingFavorites(false);
+    }
+  };
+
   const logout = () => {
     localStorage.removeItem("token");
     setUser(null);
@@ -100,11 +155,13 @@ function AuthProvider({ children }: { children: ReactNode }) {
       user,
       isAuthenticated: !!user,
       isLoading,
+      isUpdatingFavorites,
       login,
       register,
+      updateFavorites,
       logout,
     }),
-    [user, isLoading],
+    [user, isLoading, isUpdatingFavorites],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

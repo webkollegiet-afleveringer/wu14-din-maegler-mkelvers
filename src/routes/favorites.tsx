@@ -1,5 +1,4 @@
 import PageHeader from "#/components/page-header";
-import { useFavorites } from "#/lib/favorites";
 import type { Property } from "#/lib/types";
 import {
   formatPrice,
@@ -7,6 +6,8 @@ import {
   matchesPropertySearch,
 } from "#/lib/utils";
 import { getStoredAuthToken, useAuth } from "#/lib/context/authContext";
+import { useToast } from "#/lib/context/toastContext";
+import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
@@ -21,10 +22,13 @@ export const Route = createFileRoute("/favorites")({
 });
 
 function RouteComponent() {
-  const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
-  const favoriteIds = useFavorites((state) => state.ids);
-  const removeFavorite = useFavorites((state) => state.remove);
+  const { user, isAuthenticated, isUpdatingFavorites, updateFavorites } =
+    useAuth();
+  const { addToast } = useToast();
+  const queryClient = useQueryClient();
   const [search, setSearch] = useState<string>("");
+
+  const favoriteIds = user?.homes ?? [];
 
   const { data: favoriteProperties = [], isLoading: isFavoritesLoading } =
     useQuery({
@@ -45,6 +49,24 @@ function RouteComponent() {
       },
       enabled: favoriteIds.length > 0 && isAuthenticated,
     });
+
+  const handleRemoveFavorite = async (id: string): Promise<void> => {
+    if (!isAuthenticated) {
+      addToast("Du skal logge ind for at tilføje favoritter");
+      return;
+    }
+
+    const nextHomes = favoriteIds.filter((homeId: string) => homeId !== id);
+
+    try {
+      await updateFavorites(nextHomes);
+      await queryClient.invalidateQueries({
+        queryKey: ["favorite-properties"],
+      });
+    } catch {
+      addToast("Kunne ikke opdatere favoritter");
+    }
+  };
 
   const filteredFavorites = useMemo(() => {
     return favoriteProperties.filter((property: Property) =>
@@ -159,7 +181,10 @@ function RouteComponent() {
                   </p>
                   <button
                     type="button"
-                    onClick={() => removeFavorite(property.id)}
+                    onClick={() => {
+                      void handleRemoveFavorite(property.id);
+                    }}
+                    disabled={isUpdatingFavorites}
                     className="bg-primary w-full rounded-xs px-6 py-3 text-base font-medium text-white hover:cursor-pointer lg:w-57.5"
                   >
                     Fjern fra favoritter

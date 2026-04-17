@@ -1,6 +1,8 @@
 import type { Property } from "#/lib/types";
 import { fetchStreetMapFromCoordinates } from "#/lib/utils";
-import { useFavorites } from "#/lib/favorites";
+import { useAuth } from "#/lib/context/authContext";
+import { useToast } from "#/lib/context/toastContext";
+import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -78,9 +80,15 @@ function getPreviewImage(
 
 function RouteComponent() {
   const { property, mapLocation } = Route.useLoaderData();
-  const favorites = useFavorites();
+  const { user, isAuthenticated, isUpdatingFavorites, updateFavorites } =
+    useAuth();
+  const { addToast } = useToast();
+  const queryClient = useQueryClient();
   const [activeView, setActiveView] = useState<GalleryView | null>(null);
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
+
+  const favoriteIds = user?.homes ?? [];
+  const isFavorite = favoriteIds.includes(property.id);
 
   const galleryActions: {
     view: GalleryView;
@@ -117,6 +125,26 @@ function RouteComponent() {
       window.removeEventListener("keydown", handleEscape);
     };
   }, [activeView]);
+
+  const handleToggleFavorite = async (): Promise<void> => {
+    if (!isAuthenticated) {
+      addToast("Du skal logge ind for at tilføje favoritter");
+      return;
+    }
+
+    const nextHomes = isFavorite
+      ? favoriteIds.filter((id: string) => id !== property.id)
+      : [...favoriteIds, property.id];
+
+    try {
+      await updateFavorites(nextHomes);
+      await queryClient.invalidateQueries({
+        queryKey: ["favorite-properties"],
+      });
+    } catch {
+      addToast("Kunne ikke opdatere favoritter");
+    }
+  };
 
   useEffect(() => {
     if (!activeView) {
@@ -164,16 +192,17 @@ function RouteComponent() {
               <button
                 type="button"
                 className="hover:cursor-pointer"
-                onClick={() => favorites.toggle(property.id)}
+                onClick={() => {
+                  void handleToggleFavorite();
+                }}
+                disabled={isUpdatingFavorites}
                 aria-label={
-                  favorites.has(property.id)
-                    ? "Fjern fra favoritter"
-                    : "Tilføj til favoritter"
+                  isFavorite ? "Fjern fra favoritter" : "Tilføj til favoritter"
                 }
               >
                 <img
                   src={
-                    favorites.has(property.id)
+                    isFavorite
                       ? "/svgs/favorites-filled.svg"
                       : "/svgs/favorites.svg"
                   }
