@@ -27,6 +27,41 @@
   .toast-fade {
     animation: toast-fade-in-out 3s ease-in-out forwards;
   }
+
+  .range-input {
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
+  }
+
+  .range-input::-webkit-slider-runnable-track {
+    background: transparent;
+  }
+
+  .range-input::-moz-range-track {
+    background: transparent;
+  }
+
+  .range-input::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    pointer-events: auto;
+    height: 1.15rem;
+    width: 1.15rem;
+    border-radius: 9999px;
+    border: 0;
+    background: #c2c2c2;
+    cursor: pointer;
+  }
+
+  .range-input::-moz-range-thumb {
+    pointer-events: auto;
+    height: 1.15rem;
+    width: 1.15rem;
+    border-radius: 9999px;
+    border: 0;
+    background: #c2c2c2;
+    cursor: pointer;
+  }
 }
 
 @keyframes toast-fade-in-out {
