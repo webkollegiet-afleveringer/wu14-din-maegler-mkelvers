@@ -1,13 +1,14 @@
 import PageHeader from "#/components/page-header";
 import type { Agent } from "#/lib/types";
 import { createFileRoute } from "@tanstack/react-router";
+import type { FormEvent } from "react";
 
 export const Route = createFileRoute("/mæglere/$id")({
   component: RouteComponent,
   loader: async ({ params, context }) => {
     const id = params.id;
     const agent = await context.queryClient.ensureQueryData({
-      queryKey: ["agent"],
+      queryKey: ["agent", id],
       queryFn: async (): Promise<Agent> => {
         const res = await fetch(`https://dinmaegler.onrender.com/agents/${id}`);
         if (!res.ok) {
@@ -22,6 +23,10 @@ export const Route = createFileRoute("/mæglere/$id")({
 
 function RouteComponent() {
   const { agent } = Route.useLoaderData();
+
+  const handleSubmit = (event: FormEvent<HTMLFormElement>): void => {
+    event.preventDefault();
+  };
 
   return (
     <main>
@@ -106,7 +111,10 @@ function RouteComponent() {
             </h2>
             <p>{agent.description}</p>
 
-            <form className="rounded-sm border border-[#D3DEE8] p-2 md:p-4">
+            <form
+              className="rounded-sm border border-[#D3DEE8] p-2 md:p-4"
+              onSubmit={handleSubmit}
+            >
               <h3 className="after:border-primary text-xl font-medium text-[#2A2C30] after:mt-1 after:block after:w-10 after:border-b-3">
                 Kontakt {agent.name}
               </h3>

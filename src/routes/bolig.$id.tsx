@@ -48,11 +48,34 @@ type GalleryPreview =
       title: string;
     };
 
+type PrimaryImage = {
+  src: string;
+  alt: string;
+};
+
+function getPrimaryImage(property: Property): PrimaryImage {
+  const [firstImage] = property.images;
+
+  if (firstImage) {
+    return {
+      src: firstImage.url,
+      alt: firstImage.name,
+    };
+  }
+
+  return {
+    src: "/imgs/hero.webp",
+    alt: `Billede af ${property.adress1}`,
+  };
+}
+
 function getPreviewImage(
   property: Property,
   view: GalleryView,
   mapEmbedUrl: string | null,
 ): GalleryPreview {
+  const primaryImage = getPrimaryImage(property);
+
   if (view === "layers" && property.floorplan?.url) {
     return {
       type: "image",
@@ -73,8 +96,8 @@ function getPreviewImage(
 
   return {
     type: "image",
-    src: property.images[0].url,
-    alt: property.images[0].name,
+    src: primaryImage.src,
+    alt: primaryImage.alt,
   };
 }
 
@@ -103,6 +126,7 @@ function RouteComponent() {
   const activePreview = activeView
     ? getPreviewImage(property, activeView, mapLocation?.embedUrl ?? null)
     : null;
+  const primaryImage = getPrimaryImage(property);
   const canRenderPortal = typeof document !== "undefined";
 
   useEffect(() => {
@@ -159,8 +183,8 @@ function RouteComponent() {
       <main className="bg-white text-gray-800">
         <figure>
           <img
-            src={property.images[0].url}
-            alt={property.images[0].name}
+            src={primaryImage.src}
+            alt={primaryImage.alt}
             className="aspect-2/1 w-full object-cover"
           />
         </figure>

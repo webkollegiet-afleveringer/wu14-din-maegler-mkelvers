@@ -94,7 +94,7 @@ export default function Footer() {
                 <ul className="text-foreground mt-6 space-y-4">
                   <li>
                     <Link
-                      to="/"
+                      to="/boliger"
                       className="hover:text-primary transition-colors"
                     >
                       Boliger til salg
@@ -102,7 +102,7 @@ export default function Footer() {
                   </li>
                   <li>
                     <Link
-                      to="/"
+                      to="/mæglere"
                       className="hover:text-primary transition-colors"
                     >
                       Mæglere
@@ -110,7 +110,7 @@ export default function Footer() {
                   </li>
                   <li>
                     <Link
-                      to="/"
+                      to="/contact"
                       className="hover:text-primary transition-colors"
                     >
                       Kontakt os
@@ -118,7 +118,7 @@ export default function Footer() {
                   </li>
                   <li>
                     <Link
-                      to="/"
+                      to="/auth/login"
                       className="hover:text-primary transition-colors"
                     >
                       Log ind / bliv bruger

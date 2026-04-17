@@ -1,11 +1,16 @@
 import PageHeader from "#/components/page-header";
 import { createFileRoute } from "@tanstack/react-router";
+import type { FormEvent } from "react";
 
 export const Route = createFileRoute("/contact")({
   component: RouteComponent,
 });
 
 function RouteComponent() {
+  const handleSubmit = (event: FormEvent<HTMLFormElement>): void => {
+    event.preventDefault();
+  };
+
   return (
     <main>
       <PageHeader title="Kontakt os" />
@@ -20,7 +25,10 @@ function RouteComponent() {
         </p>
 
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
-          <form className="mt-8 flex h-full flex-col rounded-xs border border-[#D3DEE8] p-4 md:p-6">
+          <form
+            className="mt-8 flex h-full flex-col rounded-xs border border-[#D3DEE8] p-4 md:p-6"
+            onSubmit={handleSubmit}
+          >
             <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
               <label className="flex flex-col gap-1">
                 <span className="text-foreground text-sm font-medium">
